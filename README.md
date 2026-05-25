@@ -294,7 +294,7 @@ Phase	Feature	Status
 ⏳ v5.0	Multi-tenant Client Portal	Future
 🎨 Branding
 <p align="center">
-  <img src="assets/nexious-ai-banner.jpg?v=2" alt="Nexious AI Logo" width="60%">
+  <img src="assets/nexious-ai-banner.png?v=2" alt="Nexious AI Logo" width="60%">
 </p>
 🤝 Contributing
 This is a private project currently. For access or collaboration inquiries:
