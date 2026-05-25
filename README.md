@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/nex-banner.png" alt="Nexious AI Studio Banner" width="100%">
+  <img src="assets/nex-banner.png?v=2" alt="Nexious AI Studio Banner" width="100%">
 </p>
 
 <h1 align="center">Nexious AI Studio v4.0</h1>
@@ -294,7 +294,7 @@ Phase	Feature	Status
 ⏳ v5.0	Multi-tenant Client Portal	Future
 🎨 Branding
 <p align="center">
-  <img src="assets/nexious-ai-banner.jpg" alt="Nexious AI Logo" width="60%">
+  <img src="assets/nexious-ai-banner.jpg?v=2" alt="Nexious AI Logo" width="60%">
 </p>
 🤝 Contributing
 This is a private project currently. For access or collaboration inquiries:
