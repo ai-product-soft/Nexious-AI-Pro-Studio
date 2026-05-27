@@ -81,7 +81,7 @@ No markdown. Only valid JSON array.`;
       } catch {
         // Fallback hardcoded posts if parsing fails
         postsToSchedule = [
-          { text: 'AI is reshaping how agencies deliver results. Here\'s what we\'re doing differently at Nexious.', platform: 'LinkedIn', topic: 'AI Thought Leadership' },
+          { text: 'AI is reshaping how agencies deliver results. Here\'s what we\'re doing differently at Mabishion.', platform: 'LinkedIn', topic: 'AI Thought Leadership' },
           { text: '5 signs your business needs an AI upgrade NOW. Thread 🧵', platform: 'X', topic: 'Viral Thread' },
           { text: 'Behind the scenes: How we built a full AI client system in 7 days.', platform: 'Instagram', topic: 'Behind The Scenes' },
           { text: 'The biggest mistake agencies make with their client pipeline (and how we fixed it)', platform: 'LinkedIn', topic: 'Agency Tips' },

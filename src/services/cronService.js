@@ -104,7 +104,7 @@ export async function runAutoApproveJob() {
     if (now >= expiresAt) {
       console.log(`[Cron Engine] Auto-approving expired approval ID: ${approval.id} (Title: ${approval.title})`);
       
-      const auditNote = `Auto-approved by Nexious Cron Gate after timeout at ${now.toISOString()}`;
+      const auditNote = `Auto-approved by Mabishion Cron Gate after timeout at ${now.toISOString()}`;
       
       // Update in SQLite
       await db.execute(

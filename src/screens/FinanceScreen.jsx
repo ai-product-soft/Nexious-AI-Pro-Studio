@@ -45,7 +45,7 @@ export default function FinanceScreen({ onNavigate }) {
           </div>
           <div className="rounded-[22px] p-5" style={{ background: `${C.navy2}73`, border: `1px solid ${C.glassBorder}` }}>
             <div className="mb-5 flex items-start justify-between">
-              <div><p className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: C.mutedLow }}>Invoice draft</p><h3 className="mt-2 text-2xl font-black">Nexious AI Website Build</h3><p className="mt-1 text-sm" style={{ color: C.mutedLow }}>Client: James Carter</p></div>
+              <div><p className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: C.mutedLow }}>Invoice draft</p><h3 className="mt-2 text-2xl font-black">Mabishion AI Website Build</h3><p className="mt-1 text-sm" style={{ color: C.mutedLow }}>Client: James Carter</p></div>
               <Badge tone="gold">Draft</Badge>
             </div>
             {[["Strategy + page structure", "₹12,000"], ["Premium landing page UI", "₹18,000"], ["React export package", "₹10,000"], ["Delivery documentation", "₹5,000"]].map(([label, amount]) => (

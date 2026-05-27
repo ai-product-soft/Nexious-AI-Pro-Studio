@@ -59,7 +59,7 @@ export default function SalesMarketingHubScreen({ onNavigate }) {
   const defaultPromotionAssets = [
     {
       platform: 'Google Ads Search',
-      copy: "Headline 1: Autonomize Your Agency Operations\nHeadline 2: Nexious AI Digital Factory\nDescription: Run customized AI workflows for $99/mo. Mickii schedules, coordinates, and executes lead gen and products autonomously.",
+      copy: "Headline 1: Autonomize Your Agency Operations\nHeadline 2: Mabishion AI Digital Factory\nDescription: Run customized AI workflows for $99/mo. Mickii schedules, coordinates, and executes lead gen and products autonomously.",
       status: 'Ready',
       tone: 'emerald',
       icon: 'ads_click'
@@ -254,7 +254,7 @@ export default function SalesMarketingHubScreen({ onNavigate }) {
                   <h4 className="text-lg font-black text-white">Stripe Session Live!</h4>
                   <p className="text-xs text-gray-400 max-w-xs mx-auto">This checkout has been automatically attached to outbound campaigns.</p>
                   <div className="bg-black/40 px-4 py-2.5 rounded-xl border border-white/5 text-xs text-emerald-400 select-all font-mono">
-                    https://buy.stripe.com/test_nexious_studio_99
+                    https://buy.stripe.com/test_mabishion_studio_99
                   </div>
                   <Button onClick={() => setIsStripeDone(false)} variant="soft" className="text-xs">Generate New Checkout</Button>
                 </div>

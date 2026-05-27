@@ -5,6 +5,7 @@ import Icon from '../Icon';
 import Button from '../Button';
 import Badge from '../Badge';
 import { runWorker } from '../../engine/workers/index.js';
+import { formatLocalTime, formatLocalDate } from '../../utils/dateFormatter.js';
 
 export default function LeadDetailDrawer({ lead, onClose, onUpdate }) {
   const [notes, setNotes] = useState([]);
@@ -127,7 +128,7 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdate }) {
   // WhatsApp template triggers
   const getTemplateBody = (name) => {
     const templates = {
-      'Introduction': `Hello ${name}, thanks for reaching out to Nexious AI Studio. We have analyzed your project context and generated a customized blueprint! Let's connect.`,
+      'Introduction': `Hello ${name}, thanks for reaching out to Mabishion AI. We have analyzed your project context and generated a customized blueprint! Let's connect.`,
       'Follow-up': `Hi ${name}, just checking in on the proposed strategy blueprint. Do you have any questions or feedback for us?`,
       'Proposal': `Hi ${name}, your customized AI product development proposal is ready for review! Let us know when is a good time to run through it.`,
       'Reminder': `Hi ${name}, this is a gentle reminder regarding our scheduled strategy call. Looking forward to discussing the revenue scaling blueprint!`
@@ -320,7 +321,7 @@ export default function LeadDetailDrawer({ lead, onClose, onUpdate }) {
                     
                     <div className="p-3 rounded-2xl bg-white/5 border border-white/5 hover:border-white/10 transition-all">
                       <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
-                        <span className="font-mono">{new Date(note.timestamp).toLocaleDateString()} {new Date(note.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        <span className="font-mono">{formatLocalDate(note.timestamp)} {formatLocalTime(note.timestamp, { hour: '2-digit', minute: '2-digit' })}</span>
                         <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button onClick={() => handleStartEditNote(note)} className="hover:text-blue-400">
                             <Icon name="edit" size={12} />

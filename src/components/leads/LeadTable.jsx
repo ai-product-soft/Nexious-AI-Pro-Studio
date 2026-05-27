@@ -109,7 +109,7 @@ export default function LeadTable({ leads, onSelectLead, onBulkDelete, onBulkSta
 
     const link = document.createElement('a');
     link.setAttribute('href', encodeURI(csvContent));
-    link.setAttribute('download', `Nexious_Leads_${Date.now()}.csv`);
+    link.setAttribute('download', `Mabishion_Leads_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

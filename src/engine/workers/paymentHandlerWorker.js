@@ -82,7 +82,7 @@ Return valid JSON only:
       doc.setTextColor(255, 255, 255);
       doc.setFont('Helvetica', 'bold');
       doc.setFontSize(20);
-      doc.text('NEXIOUS AI STUDIO', 15, 18);
+      doc.text('MABISHION AI', 15, 18);
       doc.setFontSize(10);
       doc.setFont('Helvetica', 'normal');
       doc.text('Private Digital Factory & Revenue Engine', 15, 26);
@@ -139,7 +139,7 @@ Return valid JSON only:
       doc.setFont('Helvetica', 'bold');
       doc.text('Payment Methods:', 15, 145);
       doc.setFont('Helvetica', 'normal');
-      doc.text('UPI: nexious@upi  |  Bank Transfer: On request  |  Stripe: Link sent separately', 15, 153);
+      doc.text('UPI: mabishion@upi  |  Bank Transfer: On request  |  Stripe: Link sent separately', 15, 153);
 
       // UPI QR placeholder
       doc.setFillColor(245, 247, 255);
@@ -147,7 +147,7 @@ Return valid JSON only:
       doc.setFontSize(8);
       doc.setTextColor(99, 102, 241);
       doc.text('UPI QR CODE', 22, 185);
-      doc.text('nexious@upi', 22, 193);
+      doc.text('mabishion@upi', 22, 193);
 
       // Payment stripe link placeholder
       doc.setTextColor(30, 30, 30);
@@ -156,7 +156,7 @@ Return valid JSON only:
       doc.text('Stripe Payment Link:', 75, 168);
       doc.setFont('Helvetica', 'normal');
       doc.setTextColor(99, 102, 241);
-      doc.text(`https://pay.nexious.ai/${invoiceNumber}`, 75, 176);
+      doc.text(`https://pay.mabishion.ai/${invoiceNumber}`, 75, 176);
 
       // Note
       doc.setTextColor(100, 100, 100);
@@ -176,7 +176,7 @@ Return valid JSON only:
       doc.rect(0, 268, 210, 30, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(8);
-      doc.text('Nexious AI Studio v4.0 — Private Digital Factory', 15, 280);
+      doc.text('Mabishion AI — Private Digital Factory', 15, 280);
       doc.text(`Generated: ${new Date().toLocaleString('en-IN')}`, 130, 280);
 
       pdfBase64 = doc.output('datauristring');
@@ -224,7 +224,7 @@ Return valid JSON only:
         paymentId, projectId, clientName, invoiceNumber, milestone, amount,
         'pending',
         pdfBase64 ? 'generated' : 'failed',
-        `https://pay.nexious.ai/${invoiceNumber}`,
+        `https://pay.mabishion.ai/${invoiceNumber}`,
         JSON.stringify(llmData.reminderSchedule || []),
         invoiceDate, dueDate
       ]
@@ -249,8 +249,8 @@ Return valid JSON only:
       dueDate,
       pdfGenerated:      !!pdfBase64,
       pdfBase64,
-      paymentLink:       `https://pay.nexious.ai/${invoiceNumber}`,
-      upiId:             'nexious@upi',
+      paymentLink:       `https://pay.mabishion.ai/${invoiceNumber}`,
+      upiId:             'mabishion@upi',
       reminderSchedule:  llmData.reminderSchedule,
       paymentTerms:      llmData.paymentTerms,
       invoiceNote:       llmData.invoiceNote,

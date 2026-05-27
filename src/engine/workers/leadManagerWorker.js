@@ -87,7 +87,7 @@ export class LeadManagerWorker extends BaseWorker {
     const systemPrompt = `You are Mickii Lead Nurturing Specialist — an expert in high-ticket B2B sales sequences.
 Create a 5-email nurturing sequence to convert a digital services prospect into a paying client.
 Return a valid JSON array of 5 objects, each with:
-{ "day": <number>, "subject": "<email subject>", "body": "<email body, 150-200 words, warm and professional>", "ctaText": "<call to action>", "ctaLink": "https://nexious.ai/book" }
+{ "day": <number>, "subject": "<email subject>", "body": "<email body, 150-200 words, warm and professional>", "ctaText": "<call to action>", "ctaLink": "https://mabishion.ai/book" }
 Day values: 0, 3, 7, 14, 21.
 Only output the JSON array. No markdown, no backticks.`;
 
@@ -127,11 +127,11 @@ Write a warm, expert 5-email nurturing sequence that builds trust and pushes tow
       if (!Array.isArray(nurturingSequence)) throw new Error('Not an array');
     } catch {
       nurturingSequence = [
-        { day: 0,  subject: `Welcome, ${lead.name}! Let's talk about your goals`,             body: `Hi ${lead.name}, thanks for connecting! I'd love to learn more about what you're looking to achieve. Our AI-powered services have helped agencies like yours grow significantly. Can we hop on a quick 15-min call?`, ctaText: 'Book a Call', ctaLink: 'https://nexious.ai/book' },
-        { day: 3,  subject: 'Here\'s how we helped a similar client',                          body: `${lead.name}, I wanted to share a quick win. A client in a similar situation to yours went from struggling with leads to closing 3 new deals in 60 days using our system. Want to see exactly what we did?`, ctaText: 'See Case Study', ctaLink: 'https://nexious.ai/results' },
-        { day: 7,  subject: 'Your free audit is ready',                                        body: `${lead.name}, I put together a quick audit of what's likely holding your growth back. Based on your profile, I see 3 specific opportunities. When's a good time to walk you through it?`, ctaText: 'Get My Audit', ctaLink: 'https://nexious.ai/audit' },
-        { day: 14, subject: 'Quick question, ${lead.name}',                                    body: `${lead.name}, I wanted to check in. Are you still looking to solve [challenge]? We have a spot opening up next week and I thought of you. No pressure — just want to make sure I don't lose touch.`, ctaText: 'Let\'s Connect', ctaLink: 'https://nexious.ai/book' },
-        { day: 21, subject: 'Last note from me, ${lead.name}',                                 body: `${lead.name}, I don't want to keep pinging you if now isn't the right time. But I'm reaching out one last time because I genuinely believe we can help. If you ever want to revisit this, I'm here.`, ctaText: 'Reply Anytime', ctaLink: 'https://nexious.ai/contact' },
+        { day: 0,  subject: `Welcome, ${lead.name}! Let's talk about your goals`,             body: `Hi ${lead.name}, thanks for connecting! I'd love to learn more about what you're looking to achieve. Our AI-powered services have helped agencies like yours grow significantly. Can we hop on a quick 15-min call?`, ctaText: 'Book a Call', ctaLink: 'https://mabishion.ai/book' },
+        { day: 3,  subject: 'Here\'s how we helped a similar client',                          body: `${lead.name}, I wanted to share a quick win. A client in a similar situation to yours went from struggling with leads to closing 3 new deals in 60 days using our system. Want to see exactly what we did?`, ctaText: 'See Case Study', ctaLink: 'https://mabishion.ai/results' },
+        { day: 7,  subject: 'Your free audit is ready',                                        body: `${lead.name}, I put together a quick audit of what's likely holding your growth back. Based on your profile, I see 3 specific opportunities. When's a good time to walk you through it?`, ctaText: 'Get My Audit', ctaLink: 'https://mabishion.ai/audit' },
+        { day: 14, subject: 'Quick question, ${lead.name}',                                    body: `${lead.name}, I wanted to check in. Are you still looking to solve [challenge]? We have a spot opening up next week and I thought of you. No pressure — just want to make sure I don't lose touch.`, ctaText: 'Let\'s Connect', ctaLink: 'https://mabishion.ai/book' },
+        { day: 21, subject: 'Last note from me, ${lead.name}',                                 body: `${lead.name}, I don't want to keep pinging you if now isn't the right time. But I'm reaching out one last time because I genuinely believe we can help. If you ever want to revisit this, I'm here.`, ctaText: 'Reply Anytime', ctaLink: 'https://mabishion.ai/contact' },
       ];
     }
 

@@ -5,9 +5,10 @@ import App from './App'
 import './index.css'
 import { initDb } from './data/db'
 import { cronEngine } from './services/cronService'
+import { fetchSystemTimeInfo } from './utils/dateFormatter'
 
-// Initialize the database before rendering
-initDb().then(() => {
+// Initialize the database and system timezone offset before rendering
+Promise.all([initDb(), fetchSystemTimeInfo()]).then(() => {
   // Start the background cron engine for automatic approvals and periodic operations
   cronEngine.start();
 

@@ -143,7 +143,7 @@ const SettingsScreen = ({ onNavigate }) => {
             ...(provider === 'openrouter'
               ? {
                   'HTTP-Referer': 'http://localhost',
-                  'X-Title': 'Nexious-Mickii',
+                  'X-Title': 'Mabishion-Mickii',
                 }
               : {}),
           },
@@ -594,7 +594,7 @@ const SettingsScreen = ({ onNavigate }) => {
                       const url = URL.createObjectURL(blob);
                       const a = document.createElement('a');
                       a.href = url;
-                      a.download = `nexious_db_backup_${new Date().toISOString().split('T')[0]}.json`;
+                      a.download = `mabishion_db_backup_${new Date().toISOString().split('T')[0]}.json`;
                       document.body.appendChild(a);
                       a.click();
                       document.body.removeChild(a);

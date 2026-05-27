@@ -26,3 +26,15 @@
     @apply backdrop-blur-xl border border-white/10 bg-white/5;
   }
 }
+
+/* Global Select Option Dropdown Contrast Fix */
+select option {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+/* Global Select Container Dark-Mode Force */
+select {
+  background-color: #090d16 !important;
+  color: #f8fafc !important;
+}

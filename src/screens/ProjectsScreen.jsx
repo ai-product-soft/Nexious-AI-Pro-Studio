@@ -23,6 +23,7 @@ export default function ProjectsScreen({ onNavigate }) {
   const [newProjName, setNewProjName] = useState('');
   const [newProjType, setNewProjType] = useState('Website');
   const [newProjClient, setNewProjClient] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   // Selected Project Details Edit state
   const [editProgress, setEditProgress] = useState(0);
@@ -69,9 +70,10 @@ export default function ProjectsScreen({ onNavigate }) {
   // Handle New Project submission
   const handleCreateProject = async (e) => {
     e.preventDefault();
-    if (!newProjName.trim()) return;
+    if (!newProjName.trim() || isSaving) return;
 
     try {
+      setIsSaving(true);
       await addProject(newProjName, newProjType, newProjClient);
       setNewProjName('');
       setNewProjType('Website');
@@ -80,6 +82,8 @@ export default function ProjectsScreen({ onNavigate }) {
       await loadProjects();
     } catch (err) {
       console.error('Failed to create new project:', err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -151,14 +155,14 @@ export default function ProjectsScreen({ onNavigate }) {
       
       // Let's create dummy content files representing a beautiful built package!
       const files = [
-        { name: 'NEXIOUS_BLUEPRINT.md', content: `# NEXIOUS PIPELINE BLUEPRINT\\n\\nProject: ${selectedProject.name}\\nGenerated: ${new Date().toUTCString()}\\n\\nClient Name: ${selectedProject.client_name}\\nTarget Stage: ${selectedProject.stage}\\nBuild Health: ${selectedProject.health}\\n\\nGenerated with Mickii private digital packaging worker.` },
+        { name: 'MABISHION_BLUEPRINT.md', content: `# MABISHION PIPELINE BLUEPRINT\\n\\nProject: ${selectedProject.name}\\nGenerated: ${new Date().toUTCString()}\\n\\nClient Name: ${selectedProject.client_name}\\nTarget Stage: ${selectedProject.stage}\\nBuild Health: ${selectedProject.health}\\n\\nGenerated with Mickii private digital packaging worker.` },
         { name: 'config.json', content: JSON.stringify(selectedProject, null, 2) },
         { name: 'client_instructions.txt', content: 'Extract the package files. Proceed to run npm install followed by npm run dev inside client workspaces.' }
       ];
 
       const blob = await generateZipDeliverable(files);
       const savedPath = await saveFileToUserDirectory(
-        `Nexious_Package_${selectedProject.name.replace(/\s+/g, '_')}.zip`,
+        `Mabishion_Package_${selectedProject.name.replace(/\s+/g, '_')}.zip`,
         blob
       );
       if (savedPath) {
@@ -352,7 +356,7 @@ export default function ProjectsScreen({ onNavigate }) {
                 <Badge tone="indigo">Active Selection Control</Badge>
                 <h3 className="text-2xl font-black text-white mt-1">{selectedProject.name}</h3>
                 <p className="text-xs text-gray-400 mt-1">
-                  Type: <span className="text-indigo-300 font-bold">{selectedProject.type || 'Digital Product'}</span> · Client: <span className="text-indigo-300 font-bold">{selectedProject.client_name || 'Nexious'}</span>
+                  Type: <span className="text-indigo-300 font-bold">{selectedProject.type || 'Digital Product'}</span> · Client: <span className="text-indigo-300 font-bold">{selectedProject.client_name || 'Mabishion'}</span>
                 </p>
               </div>
               <div className="flex gap-2">
@@ -591,8 +595,8 @@ export default function ProjectsScreen({ onNavigate }) {
               <Button type="button" variant="soft" className="flex-1" onClick={() => setIsNewModalOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" variant="glow" className="flex-1">
-                Launch Build
+              <Button type="submit" variant="glow" className="flex-1" disabled={isSaving}>
+                {isSaving ? 'Launching...' : 'Launch Build'}
               </Button>
             </div>
           </form>

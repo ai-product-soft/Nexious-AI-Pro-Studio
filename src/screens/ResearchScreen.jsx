@@ -298,8 +298,8 @@ export default function ResearchScreen({ onNavigate }) {
       '[TAURI NATIVE BUILDER] Invoking tauri native build --target x86_64...',
       '[TAURI NATIVE BUILDER] Compiling tauri-plugin-sql v2.0...',
       '[TAURI NATIVE BUILDER] Packaging custom windows system trays & app menus...',
-      '[TAURI NATIVE BUILDER] Signing executable with Nexious Local Private Keys...',
-      '[TAURI NATIVE BUILDER] BUILD COMPLETE! Natively compiled package saved: src-tauri/target/release/bundle/deb/nexious-studio_4.0.0_amd64.deb'
+      '[TAURI NATIVE BUILDER] Signing executable with Mabishion Local Private Keys...',
+      '[TAURI NATIVE BUILDER] BUILD COMPLETE! Natively compiled package saved: src-tauri/target/release/bundle/deb/mabishion-studio_4.0.0_amd64.deb'
     ];
 
     for (const logLine of lines) {
@@ -441,7 +441,7 @@ export default function ResearchScreen({ onNavigate }) {
                   onChange={(e) => setSelectedProjectId(e.target.value)}
                   className="px-3 py-1.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-indigo-500 cursor-pointer min-w-[160px]"
                 >
-                  {projectsList.map(p => (
+                  {Array.from(new Map(projectsList.map(p => [p.name, p])).values()).map(p => (
                     <option key={p.id} value={p.id} className="bg-slate-950">{p.name}</option>
                   ))}
                 </select>
@@ -455,7 +455,7 @@ export default function ResearchScreen({ onNavigate }) {
                   onChange={(e) => setSelectedLeadId(e.target.value)}
                   className="px-3 py-1.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-indigo-500 cursor-pointer min-w-[160px]"
                 >
-                  {leadsList.map(l => (
+                  {Array.from(new Map(leadsList.map(l => [l.name, l])).values()).map(l => (
                     <option key={l.id} value={l.id} className="bg-slate-950">{l.name}</option>
                   ))}
                 </select>

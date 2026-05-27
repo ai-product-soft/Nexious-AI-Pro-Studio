@@ -3,7 +3,7 @@ import { emit } from '@tauri-apps/api/event';
 let dbInstance = null;
 
 // Persistent localStorage database simulation to avoid temporary in-memory fallback outside Tauri shell
-const savedState = localStorage.getItem('nexious_local_db');
+const savedState = localStorage.getItem('mabishion_local_db');
 const developmentPreviewStore = savedState ? JSON.parse(savedState) : {
   projects: [],
   leads: [],
@@ -32,7 +32,7 @@ const settingsMap = new Map(
 
 function saveDevelopmentPreviewDb() {
   developmentPreviewStore.settings = Array.from(settingsMap.entries());
-  localStorage.setItem('nexious_local_db', JSON.stringify(developmentPreviewStore));
+  localStorage.setItem('mabishion_local_db', JSON.stringify(developmentPreviewStore));
 }
 
 function createDevelopmentPreviewDb() {
@@ -316,7 +316,7 @@ export async function getDb() {
   if (!dbInstance) {
     if (window.__TAURI_INTERNALS__) {
       const Database = (await import('@tauri-apps/plugin-sql')).default;
-      dbInstance = await Database.load('sqlite:nexious.db');
+      dbInstance = await Database.load('sqlite:mabishion.db');
     } else {
       console.warn("Running outside the desktop shell: using temporary development preview storage.");
       dbInstance = createDevelopmentPreviewDb();
@@ -402,6 +402,7 @@ export async function initDb() {
     await db.execute(`ALTER TABLE approvals ADD COLUMN owner_notified INTEGER DEFAULT 0;`).catch(() => {});
     await db.execute(`ALTER TABLE approvals ADD COLUMN whatsapp_sent INTEGER DEFAULT 0;`).catch(() => {});
     await db.execute(`ALTER TABLE approvals ADD COLUMN owner_notes TEXT;`).catch(() => {});
+    await db.execute(`ALTER TABLE approvals ADD COLUMN created_at TEXT;`).catch(() => {});
   } catch (err) {
     console.warn("[Mickii DB] Approvals table column migrations handled:", err);
   }

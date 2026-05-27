@@ -49,7 +49,7 @@ export class NotificationWorker extends BaseWorker {
 
     // ── SEND: Create + dispatch notification ──────────────────────────────────
     if (action === 'send') {
-      const title    = params.title   || 'Nexious AI Notification';
+      const title    = params.title   || 'Mabishion AI Notification';
       const message  = params.message || 'An action requires your attention.';
       const cfg      = this._priorityConfig(priority);
       const notifId  = crypto.randomUUID();
@@ -81,7 +81,7 @@ export class NotificationWorker extends BaseWorker {
                 messaging_product: 'whatsapp',
                 to:      phone.replace(/\D/g, ''),
                 type:    'text',
-                text:    { body: `${cfg.badge} *Nexious AI Alert*\n\n*${title}*\n${message}\n\n_Tap to open app_` }
+                text:    { body: `${cfg.badge} *Mabishion AI Alert*\n\n*${title}*\n${message}\n\n_Tap to open app_` }
               }),
               signal: AbortSignal.timeout(5000)
             });

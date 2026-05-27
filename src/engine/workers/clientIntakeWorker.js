@@ -52,8 +52,8 @@ Return a valid JSON object ONLY with keys: welcomeEmail, questionnaire (10 items
     try { parsed = JSON.parse(clean); } catch {
       parsed = {
         welcomeEmail: {
-          subject: `Welcome to Nexious, ${clientName}! Your ${projectName} journey starts now`,
-          body: `Dear ${clientName},\n\nWelcome aboard! We're thrilled to partner with you on ${projectName}.\n\nNext steps:\n1. Complete the questionnaire\n2. Schedule your kickoff call\n3. Review the project timeline\n\nWarm regards,\nThe Nexious Team`
+          subject: `Welcome to Mabishion, ${clientName}! Your ${projectName} journey starts now`,
+          body: `Dear ${clientName},\n\nWelcome aboard! We're thrilled to partner with you on ${projectName}.\n\nNext steps:\n1. Complete the questionnaire\n2. Schedule your kickoff call\n3. Review the project timeline\n\nWarm regards,\nThe Mabishion Team`
         },
         questionnaire: [
           { id: 1,  question: 'What is the primary goal you want to achieve?', type: 'text', options: [] },

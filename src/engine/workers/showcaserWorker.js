@@ -86,7 +86,7 @@ Write a premium portfolio case study for this project.
         solutionSection: `We built ${projectName} — a custom AI-powered solution tailored to their exact needs.`,
         resultsSection: results,
         testimonialFormat: {
-          quote: testimonial || `Working with Nexious was a game-changer for our business. The results exceeded our expectations.`,
+          quote: testimonial || `Working with Mabishion was a game-changer for our business. The results exceeded our expectations.`,
           author: `${clientName}, Owner`
         },
         keyMetrics: [{ label: 'Result', value: results.split(',')[0] }],

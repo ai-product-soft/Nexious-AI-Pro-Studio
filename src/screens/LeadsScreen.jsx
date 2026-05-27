@@ -79,7 +79,7 @@ export default function LeadsScreen({ onNavigate }) {
         {/* Header Section */}
         <ScreenHeader 
           title="Lead CRM Console" 
-          subtitle="Nexious AI Studio Private Client Intake Scorer & Pipeline"
+          subtitle="Mabishion AI Studio Private Client Intake Scorer & Pipeline"
           actionLabel={showAddForm ? "Close Form" : "Add New Lead"}
           actionIcon={showAddForm ? "close" : "person_add"}
           onActionClick={() => setShowAddForm(!showAddForm)}

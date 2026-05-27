@@ -59,7 +59,7 @@ export async function saveFileToUserDirectory(filename, blob) {
  */
 export async function generatePdfInvoice(data) {
   const doc = new jsPDF();
-  const title = data.title || 'Nexious AI Proposal Summary';
+  const title = data.title || 'Mabishion AI Proposal Summary';
   const client = data.clientName || 'Valued Client';
   const amount = data.amount || '$0.00';
   const date = data.date || new Date().toLocaleDateString();
@@ -74,7 +74,7 @@ export async function generatePdfInvoice(data) {
   doc.setTextColor(99, 102, 241); // Indigo-500
   doc.setFont('Helvetica', 'bold');
   doc.setFontSize(24);
-  doc.text('NEXIOUS AI STUDIO', 20, 20);
+  doc.text('MABISHION AI', 20, 20);
 
   doc.setTextColor(248, 250, 252); // Text White
   doc.setFontSize(11);
@@ -121,7 +121,7 @@ export async function generatePdfInvoice(data) {
   doc.setFontSize(8);
   doc.setTextColor(100, 116, 139); // Slate-500
   doc.setFont('Helvetica', 'oblique');
-  doc.text('Nexious AI operates as the private, high-fidelity EARNING ENGINE of the owner.', 25, 247);
+  doc.text('Mabishion AI operates as the private, high-fidelity EARNING ENGINE of the owner.', 25, 247);
   doc.text('This document serves as an operational blueprint and commercial estimate draft.', 25, 252);
   doc.text('All specifications are subject to owner authorization.', 25, 257);
 
@@ -135,7 +135,7 @@ export async function generatePdfInvoice(data) {
  */
 export async function generateProposalPdf(data) {
   const doc = new jsPDF();
-  const name = data.name || 'Nexious Project';
+  const name = data.name || 'Mabishion Project';
   const client = data.clientName || 'Valued Client';
   const budget = data.budget || '$5,000.00';
   const description = data.description || 'Custom digital platform deployment.';
@@ -153,11 +153,11 @@ export async function generateProposalPdf(data) {
   doc.setTextColor(255, 255, 255);
   doc.setFont('Helvetica', 'bold');
   doc.setFontSize(10);
-  doc.text('N', 24, 19);
+  doc.text('M', 24, 19);
 
   doc.setTextColor(248, 250, 252);
   doc.setFontSize(16);
-  doc.text('NEXIOUS AI STUDIO', 38, 19);
+  doc.text('MABISHION AI', 38, 19);
   doc.setFontSize(9);
   doc.setFont('Helvetica', 'normal');
   doc.text('PREMIUM COMMERCIAL PROPOSAL', 38, 26);
@@ -263,7 +263,7 @@ export async function generateProposalPdf(data) {
   doc.setFontSize(7.5);
   doc.setTextColor(100, 116, 139);
   doc.setFont('Helvetica', 'oblique');
-  doc.text('Nexious AI Operations Engine. This proposal represents a binding commercial quote.', 24, 252);
+  doc.text('Mabishion AI Operations Engine. This proposal represents a binding commercial quote.', 24, 252);
   doc.text('Unauthorized distribution of this blueprint document is strictly prohibited.', 24, 257);
   doc.text('Subject to Owner Digital Signature and Client Intake authorization.', 24, 262);
 
@@ -280,7 +280,7 @@ export async function generateZipDeliverable(filesList = []) {
 
   if (filesList.length === 0) {
     // Add default template files if list is empty
-    zip.file('NEXIOUS_BLUEPRINT.md', '# NEXIOUS PIPELINE BLUEPRINT\nCreated by Mickii AI Worker.');
+    zip.file('MABISHION_BLUEPRINT.md', '# MABISHION PIPELINE BLUEPRINT\nCreated by Mickii AI Worker.');
     zip.file('CLIENT_INSTRUCTIONS.txt', 'Review invoice PDF and trigger payments to initialize code deployment.');
   } else {
     filesList.forEach(file => {

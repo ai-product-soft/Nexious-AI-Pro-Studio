@@ -711,6 +711,15 @@ async fn gemini_proxy(
     Ok(json)
 }
 
+#[tauri::command]
+fn get_system_time_info() -> serde_json::Value {
+    let now = chrono::Local::now();
+    let offset_seconds = now.offset().local_minus_utc();
+    serde_json::json!({
+        "local_time": now.to_rfc3339(),
+        "offset_minutes": offset_seconds / 60
+    })
+}
 
 
 fn main() {
@@ -746,7 +755,8 @@ fn main() {
             llm_proxy,
             gemini_proxy,
             serper_search,
-            exa_research
+            exa_research,
+            get_system_time_info
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -128,7 +128,7 @@ export class LLMProvider {
         if (provider.name === 'Gemini') {
           data = await invoke('gemini_proxy', { payload, apiKey: key, baseUrl: url });
         } else {
-          data = await invoke('llm_proxy', { payload, apiKey: key, baseUrl: url, extraHeaders: provider.name === 'OpenRouter' ? { 'HTTP-Referer': 'http://localhost', 'X-Title': 'Nexious-Mickii' } : {} });
+          data = await invoke('llm_proxy', { payload, apiKey: key, baseUrl: url, extraHeaders: provider.name === 'OpenRouter' ? { 'HTTP-Referer': 'http://localhost', 'X-Title': 'Mabishion-Mickii' } : {} });
         }
 
         if (data && data.error) {
@@ -167,7 +167,7 @@ export class Cortex {
     this.history = [];
     this.projectId = config.projectId || null;
     this.systemPrompt = [
-      'You are Mickii, Nexious AI Business Agent.',
+      'You are Mickii, Mabishion AI Business Agent.',
       'CRITICAL RULES (SEARCH-FIRST, DATE-AWARE):',
       '1. ALWAYS use mickii_web_search (and optionally mickii_deep_research) before any factual, market, or model-related answer.',
       '2. NEVER rely only on your training memory for facts, dates, or model lists. If something is not clearly present in the latest search results, you must say you are not sure.',

@@ -35,7 +35,7 @@ export class WriterWorker extends BaseWorker {
       word_count = 500,
       project_id = null,
       keywords = [],
-      brand_voice = 'Nexious AI Studio — Premium Digital Services'
+      brand_voice = 'Mabishion AI — Premium Digital Services'
     } = input;
 
     if (hooks?.onStatus) hooks.onStatus(`Writer: Generating ${content_type}...`);
@@ -55,7 +55,7 @@ export class WriterWorker extends BaseWorker {
       }
     }
 
-    const systemInstruction = `You are Nexious AI Studio's elite content writer. 
+    const systemInstruction = `You are Mabishion AI's elite content writer. 
 Brand Voice: ${brand_voice}
 Style: Write in ${tone} tone for ${target_audience}.
 Always produce ready-to-publish, high-quality content.
@@ -183,7 +183,7 @@ Understanding ${topic || 'digital strategy'} is essential for any business looki
 - Consistency beats perfection every time
 
 ## Next Steps
-Ready to take action? Let's build something remarkable together. [Contact Nexious AI Studio]`,
+Ready to take action? Let's build something remarkable together. [Contact Mabishion AI]`,
 
       email_sequence: `**Email 1 — Day 0: Welcome**
 Subject: You made the right choice 🎯
@@ -235,7 +235,7 @@ Here's what the top 1% do differently:
 
 Are you working smarter or just harder?
 
-#BusinessGrowth #DigitalStrategy #Productivity #NexiousAI
+#BusinessGrowth #DigitalStrategy #Productivity #MabishionAI
 
 ---
 
@@ -266,7 +266,7 @@ Contact us to learn how 👉`,
 
 ---
 
-## Why Nexious AI Studio?
+## Why Mabishion AI?
 
 ✅ **Speed** — Deliver client projects 3x faster
 ✅ **Quality** — Premium outputs every time  

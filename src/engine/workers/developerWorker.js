@@ -185,6 +185,30 @@ Return ONLY the test file code as plain text (no JSON wrapper, no markdown fence
     // Update project stage to Development
     await db.execute("UPDATE projects SET stage = 'Development' WHERE id = $1", [projectId]).catch(() => {});
 
+    // Create 24h STANDARD approval gate request
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    const approvalId = crypto.randomUUID();
+    
+    await db.execute(
+      `INSERT INTO approvals (id, title, type, project_id, worker_name, request_data, status, expires_at, created_at, owner_notified, whatsapp_sent)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP, 0, 0)`,
+      [
+        approvalId,
+        `React Code Module "${moduleName}" for "${projectName}"`,
+        'standard',
+        projectId,
+        'Developer',
+        JSON.stringify({
+          moduleId,
+          projectName,
+          moduleName,
+          summary: `${(codeData.mainComponent?.code || '').split('\n').length} lines of code | ${(testCode || '').split('\n').length} test lines`
+        }),
+        'pending',
+        expiresAt
+      ]
+    ).catch(err => console.error('[DeveloperWorker Approval Insert Err]', err));
+
     return {
       moduleId,
       projectName,
@@ -198,7 +222,8 @@ Return ONLY the test file code as plain text (no JSON wrapper, no markdown fence
       folderStructure: codeData.folderStructure,
       dependencies:    codeData.dependencies,
       moduleReadme:    codeData.moduleReadme,
-      summary: `Module "${moduleName}" generated for ${projectName} | ${(codeData.mainComponent?.code || '').split('\n').length} lines of code | ${(testCode || '').split('\n').length} test lines`
+      summary: `Module "${moduleName}" generated for ${projectName} | ${(codeData.mainComponent?.code || '').split('\n').length} lines of code | ${(testCode || '').split('\n').length} test lines`,
+      approvalId
     };
   }
 }

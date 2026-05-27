@@ -168,7 +168,7 @@ Rules:
   <footer class="footer">
     <div class="container">
       <p class="footer-logo">${clientName}</p>
-      <p class="footer-text">© ${new Date().getFullYear()} ${clientName}. All rights reserved. Powered by Nexious AI Studio.</p>
+      <p class="footer-text">© ${new Date().getFullYear()} ${clientName}. All rights reserved. Powered by Mabishion AI.</p>
     </div>
   </footer>
   <script src="script.js"></script>
@@ -330,6 +330,30 @@ document.querySelectorAll('.card, .stat-card').forEach(el => {
 
     await db.execute("UPDATE projects SET stage = 'Build' WHERE id = $1", [projectId]).catch(() => {});
 
+    // Create 24h STANDARD approval gate request
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    const approvalId = crypto.randomUUID();
+    
+    await db.execute(
+      `INSERT INTO approvals (id, title, type, project_id, worker_name, request_data, status, expires_at, created_at, owner_notified, whatsapp_sent)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP, 0, 0)`,
+      [
+        approvalId,
+        `Draft Website Layout for "${projectName}"`,
+        'standard',
+        projectId,
+        'Website Builder',
+        JSON.stringify({
+          websiteId,
+          projectName,
+          clientName,
+          summary: `${(siteData.pagesJson || []).length} pages | HTML: ${(siteData.htmlContent || '').split('\n').length} lines | CSS: ${(siteData.cssContent || '').split('\n').length} lines`
+        }),
+        'pending',
+        expiresAt
+      ]
+    ).catch(err => console.error('[WebsiteBuilderWorker Approval Insert Err]', err));
+
     return {
       websiteId,
       projectName,
@@ -341,7 +365,8 @@ document.querySelectorAll('.card, .stat-card').forEach(el => {
       deployConfig: siteData.deployConfig,
       seoMeta:      siteData.seoMeta,
       formAction:   siteData.formAction,
-      summary: `Website built for ${projectName} | ${(siteData.pagesJson || []).length} pages | HTML: ${(siteData.htmlContent || '').split('\n').length} lines | Ready for Netlify deploy`
+      summary: `Website built for ${projectName} | ${(siteData.pagesJson || []).length} pages | HTML: ${(siteData.htmlContent || '').split('\n').length} lines | Ready for Netlify deploy`,
+      approvalId
     };
   }
 }

@@ -36,7 +36,8 @@ export class BlueprintMakerWorker extends BaseWorker {
       );
       if (analysisRows && analysisRows.length > 0) {
         const parsed = JSON.parse(analysisRows[0].output_data || '{}');
-        analystContext = parsed.summary || parsed.report || '';
+        const rawContext = parsed.summary || parsed.report || parsed || '';
+        analystContext = typeof rawContext === 'string' ? rawContext : JSON.stringify(rawContext);
       }
     } catch { /* non-fatal */ }
 
@@ -103,10 +104,10 @@ No markdown wrappers. Only valid JSON.`;
         trdMarkdown: `# TRD — ${projectName}\n\n## System Architecture\nTauri v2 (Rust shell) wrapping React 18 + Vite SPA. SQLite via @tauri-apps/plugin-sql for local persistence. Multi-LLM fallback for AI tasks.\n\n## Data Flow\nUI → Worker → LLM → SQLite → Approval Gate → Owner\n\n## Security\n- API keys stored in SQLite (encrypted at app level)\n- No external data transmission without owner consent\n- Tauri IPC for native file operations\n\n## Deployment\nLocal desktop install via Tauri .deb/.AppImage bundle.`,
         architectureDiagram: `
 ┌─────────────────────────────────────────────────┐
-│              NEXIOUS AI STUDIO v4.0              │
+│                 MABISHION AI                     │
 │           (Tauri v2 Desktop Shell)               │
 ├───────────────────┬─────────────────────────────┤
-│   React 18 + Vite │      SQLite (nexious.db)     │
+│   React 18 + Vite │    SQLite (mabishion.db)     │
 │   Tailwind CSS    │  projects | leads | approvals│
 │   Zustand State   │  payments | workers | logs   │
 ├───────────────────┴─────────────────────────────┤
@@ -121,7 +122,7 @@ No markdown wrappers. Only valid JSON.`;
         techStack: {
           frontend: ['React 18', 'Vite 5', 'Tailwind CSS 3', 'Zustand', 'React Router 6', 'Recharts', 'React Flow'],
           backend:  ['Tauri v2 (Rust)', '@tauri-apps/plugin-sql', 'node-cron (JS cron)', 'jsPDF', 'JSZip'],
-          database: ['SQLite (nexious.db)', 'tauri-plugin-sql v2'],
+          database: ['SQLite (mabishion.db)', 'tauri-plugin-sql v2'],
           devops:   ['Tauri build system', '.deb/.AppImage packaging', 'Vite production build'],
           ai:       ['Google Gemini 2.5 Flash', 'Groq Llama 3.3 70B', 'Cerebras Llama 3.3', 'OpenRouter', 'Ollama Gemma 3 4B']
         },
@@ -150,10 +151,10 @@ No markdown wrappers. Only valid JSON.`;
         deploymentSteps: [
           'Run: npm run build (Vite production bundle)',
           'Run: npx tauri build (native binary compilation)',
-          'Output: src-tauri/target/release/bundle/deb/nexious-studio.deb',
-          'Install: sudo dpkg -i nexious-studio.deb',
-          'Launch: nexious-studio from Applications or terminal',
-          'First Run: App auto-creates nexious.db in app data directory',
+          'Output: src-tauri/target/release/bundle/deb/mabishion-ai.deb',
+          'Install: sudo dpkg -i mabishion-ai.deb',
+          'Launch: mabishion-ai from Applications or terminal',
+          'First Run: App auto-creates mabishion.db in app data directory',
           'Configure: Add LLM API keys in Settings screen',
         ]
       };
@@ -202,6 +203,30 @@ No markdown wrappers. Only valid JSON.`;
       [projectId]
     ).catch(() => {});
 
+    // Create 24h STANDARD approval gate request
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    const approvalId = crypto.randomUUID();
+    
+    await db.execute(
+      `INSERT INTO approvals (id, title, type, project_id, worker_name, request_data, status, expires_at, created_at, owner_notified, whatsapp_sent)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP, 0, 0)`,
+      [
+        approvalId,
+        `Technical Architecture Blueprint for "${projectName}"`,
+        'standard',
+        projectId,
+        'Blueprint Maker',
+        JSON.stringify({
+          blueprintId,
+          projectName,
+          clientName,
+          summary: `PRD: ${prdText.split('\n').length} lines | TRD: ${(techData.trdMarkdown || '').split('\n').length} lines | Schema: ${(techData.databaseSchema || '').split('\n').length} lines`
+        }),
+        'pending',
+        expiresAt
+      ]
+    ).catch(err => console.error('[BlueprintWorker Approval Insert Err]', err));
+
     return {
       blueprintId,
       projectName,
@@ -214,7 +239,8 @@ No markdown wrappers. Only valid JSON.`;
       apiEndpoints:        techData.apiEndpoints,
       securityChecklist:   techData.securityChecklist,
       deploymentSteps:     techData.deploymentSteps,
-      summary: `Blueprint created for ${projectName} | PRD: ${prdText.split('\n').length} lines | ${(techData.apiEndpoints || []).length} API endpoints | ${(techData.securityChecklist || []).length} security checks`
+      summary: `Blueprint created for ${projectName} | PRD: ${prdText.split('\n').length} lines | ${(techData.apiEndpoints || []).length} API endpoints | ${(techData.securityChecklist || []).length} security checks`,
+      approvalId
     };
   }
 }

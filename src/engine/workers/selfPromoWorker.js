@@ -65,7 +65,7 @@ Write a compelling personal branding post that positions this owner as a thought
     } catch {
       parsed = {
         postText: clean.slice(0, 600),
-        hashtags: ['#AIAgency', '#DigitalMarketing', '#PersonalBrand', '#Nexious', '#GrowthHacking'],
+        hashtags: ['#AIAgency', '#DigitalMarketing', '#PersonalBrand', '#Mabishion', '#GrowthHacking'],
         bestTimeToPost: 'Tuesday–Thursday, 9–11 AM IST',
         engagementHook: 'What tool or process has changed your business the most? Comment below! 👇'
       };

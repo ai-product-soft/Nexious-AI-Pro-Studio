@@ -83,19 +83,19 @@ export const WhatsAppService = {
 
     switch (templateName) {
       case 'CRITICAL':
-        message = `🔔 CRITICAL: ${worker_name || 'System Worker'} needs approval for ${project_name || 'Nexious Build'}. Amount: ₹${amount || '0'}. Reply: APPROVE ${id} or REJECT ${id}`;
+        message = `🔔 CRITICAL: ${worker_name || 'System Worker'} needs approval for ${project_name || 'Mabishion Build'}. Amount: ₹${amount || '0'}. Reply: APPROVE ${id} or REJECT ${id}`;
         break;
       case 'REMINDER':
-        message = `⏰ REMINDER: Approval ${id} expires in ${minutes || '30'} minutes. ${project_name || 'Nexious Build'} waiting.`;
+        message = `⏰ REMINDER: Approval ${id} expires in ${minutes || '30'} minutes. ${project_name || 'Mabishion Build'} waiting.`;
         break;
       case 'APPROVED':
-        message = `✅ APPROVED: ${project_name || 'Nexious Build'} approved. ${worker_name || 'System Worker'} proceeding.`;
+        message = `✅ APPROVED: ${project_name || 'Mabishion Build'} approved. ${worker_name || 'System Worker'} proceeding.`;
         break;
       case 'REJECTED':
-        message = `❌ REJECTED: ${project_name || 'Nexious Build'} rejected. Reason: ${owner_notes || 'No reason provided.'}`;
+        message = `❌ REJECTED: ${project_name || 'Mabishion Build'} rejected. Reason: ${owner_notes || 'No reason provided.'}`;
         break;
       default:
-        message = `🔔 Nexious AI Notification: ${templateName} alert.`;
+        message = `🔔 Mabishion AI Notification: ${templateName} alert.`;
     }
 
     return await this.sendMessage(phone, message);

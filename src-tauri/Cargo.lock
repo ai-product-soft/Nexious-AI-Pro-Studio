@@ -2172,6 +2172,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 
 [[package]]
+name = "mabishion-ai"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "lazy_static",
+ "reqwest 0.11.27",
+ "serde",
+ "serde_json",
+ "suppaftp",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-fs",
+ "tauri-plugin-shell",
+ "tauri-plugin-sql",
+ "tokio",
+ "walkdir",
+]
+
+[[package]]
 name = "markup5ever"
 version = "0.38.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2301,25 +2320,6 @@ name = "new_debug_unreachable"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086"
-
-[[package]]
-name = "nexious-ai"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "lazy_static",
- "reqwest 0.11.27",
- "serde",
- "serde_json",
- "suppaftp",
- "tauri",
- "tauri-build",
- "tauri-plugin-fs",
- "tauri-plugin-shell",
- "tauri-plugin-sql",
- "tokio",
- "walkdir",
-]
 
 [[package]]
 name = "num-bigint-dig"

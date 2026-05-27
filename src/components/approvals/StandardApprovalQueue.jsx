@@ -3,6 +3,7 @@ import Icon from '../Icon';
 import Badge from '../Badge';
 import Button from '../Button';
 import { C } from '../consts';
+import { formatLocalTime } from '../../utils/dateFormatter.js';
 
 export default function StandardApprovalQueue({ approvals, onSelectApproval, onResolveFast }) {
   const [filterTab, setFilterTab] = useState('pending'); // pending | approved | rejected | all
@@ -130,7 +131,7 @@ export default function StandardApprovalQueue({ approvals, onSelectApproval, onR
                 <div className="flex items-center gap-3 text-[10px] text-slate-400">
                   <span className="font-semibold text-slate-300">Worker: {app.worker_name || 'System'}</span>
                   <span>·</span>
-                  <span>Requested: {new Date(app.created_at || Date.now()).toLocaleTimeString()}</span>
+                  <span>Requested: {formatLocalTime(app.created_at)}</span>
                 </div>
               </div>
 

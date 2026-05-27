@@ -81,7 +81,7 @@ export const ApprovalEngine = {
     
     if (!match) {
       // Invalid structure, reply with guidance help instructions
-      const helpMsg = `❓ Nexious Studio Help: Command not recognized.\n\nReply in exact format:\n👉 *APPROVE [id]*\n👉 *REJECT [id]*`;
+      const helpMsg = `❓ Mabishion Help: Command not recognized.\n\nReply in exact format:\n👉 *APPROVE [id]*\n👉 *REJECT [id]*`;
       try {
         await WhatsAppService.sendMessage(phone, helpMsg);
       } catch (e) {
@@ -99,7 +99,7 @@ export const ApprovalEngine = {
     const approval = await getApprovalById(approvalId);
 
     if (!approval) {
-      const errorMsg = `❌ Error: Approval ID "${approvalId}" does not exist in Nexious database registry.`;
+      const errorMsg = `❌ Error: Approval ID "${approvalId}" does not exist in Mabishion database registry.`;
       try {
         await WhatsAppService.sendMessage(phone, errorMsg);
       } catch (e) {}

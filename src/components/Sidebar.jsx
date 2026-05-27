@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { C, glassStyle } from './consts';
 import MickiiOrb from './MickiiOrb';
 import Icon from './Icon';
-import nexiousLogo from '../assets/Nexious-logo.png';
+import nexiousLogo from '../assets/Mabishion-logo.png';
 import Badge from './Badge';
 import { getPendingApprovals } from '../data/db.js';
 
 const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { id: 'dashboard', label: 'Home', icon: 'dashboard' },
   { id: 'build-new', label: 'Build New', icon: 'rocket' },
-  { id: 'projects', label: 'Projects', icon: 'inventory_2' },
-  { id: 'leads', label: 'Lead CRM', icon: 'groups' },
-  { id: 'sales-marketing', label: 'Sales & Marketing Hub', icon: 'campaign' },
-  { id: 'approvals', label: 'Approval Center', icon: 'gavel', badge: true },
+  { id: 'projects', label: 'Projects', icon: 'project' },
+  { id: 'leads', label: 'Lead CRM', icon: 'users' },
+  { id: 'sales-marketing', label: 'Sales & Marketing Hub', icon: 'megaphone' },
+  { id: 'approvals', label: 'Approval Center', icon: 'approval', badge: true },
   { id: 'finance', label: 'Finance Hub', icon: 'wallet' },
   { id: 'system-monitor', label: 'System Monitor', icon: 'brain' },
   { id: 'settings', label: 'Settings', icon: 'settings' },
@@ -50,21 +50,22 @@ export default function Sidebar({ activeNavId, onNavigate }) {
         boxShadow: expanded ? '28px 0 70px rgba(0,0,0,.38)' : '10px 0 36px rgba(0,0,0,.18)'
       }}>
       
-      <div className="mb-6 flex h-12 items-center rounded-2xl"
+      <div className="mb-6 flex flex-col justify-center rounded-2xl cursor-pointer hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
+        onClick={() => onNavigate('dashboard')}
+        title="Go to Home Screen"
         style={{ 
-          justifyContent: expanded ? 'flex-start' : 'center', 
-          gap: expanded ? 12 : 0, 
-          padding: expanded ? '0 14px' : 0, 
-          border: `1px solid ${C.gold}40`, 
-          backgroundColor: `${C.gold}14`, 
-          color: C.softGold 
+          padding: expanded ? '12px 18px' : '10px 0', 
+          border: '1px solid rgba(255, 255, 255, 0.08)', 
+          backgroundColor: 'rgba(255, 255, 255, 0.02)', 
+          color: C.softGold,
+          alignItems: expanded ? 'flex-start' : 'center'
         }}>
-        <MickiiOrb />
-        {expanded && (
+        {expanded ? (
           <div className="min-w-0">
-            <img src={nexiousLogo} alt="Nexious AI" className="h-4 w-auto object-contain" />
-            <p className="truncate text-[10px]" style={{ color: C.mutedLow }}>Mickii Local Agent</p>
+            <img src={nexiousLogo} alt="Mabishion AI" className="h-12 w-auto object-contain" />
           </div>
+        ) : (
+          <img src={nexiousLogo} alt="Mabishion AI" className="h-8 w-auto object-contain" />
         )}
       </div>
 

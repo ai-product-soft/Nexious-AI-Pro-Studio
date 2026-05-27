@@ -1,4 +1,4 @@
-// Nexious AI — All mock data constants
+// Mabishion AI — All mock data constants
 // Auto-generated from NexiousApp_Fixed.jsx
 
 export const DASHBOARD_PROJECTS = [
@@ -31,7 +31,7 @@ export const PROJ_PROJECTS = [
   { id: 1, name: "AI Website Builder", client: "Internal", phase: "Design", health: "Stable", progress: 72, tone: "gold", tasks: 14, blocking: 1, due: "May 20" },
   { id: 2, name: "Lead Engine", client: "Internal", phase: "Build", health: "Needs Review", progress: 54, tone: "danger", tasks: 22, blocking: 3, due: "May 15" },
   { id: 3, name: "Agency Kit", client: "Internal", phase: "Testing", health: "Strong", progress: 86, tone: "success", tasks: 8, blocking: 0, due: "May 12" },
-  { id: 4, name: "Proposal OS", client: "Nexious Internal", phase: "Research", health: "Blocked", progress: 38, tone: "violet", tasks: 10, blocking: 2, due: "May 28" },
+  { id: 4, name: "Proposal OS", client: "Mabishion Internal", phase: "Research", health: "Blocked", progress: 38, tone: "violet", tasks: 10, blocking: 2, due: "May 28" },
   { id: 5, name: "Client Dashboard v2", client: "Rahul Enterprises", phase: "Design", health: "Stable", progress: 61, tone: "cyan", tasks: 18, blocking: 0, due: "Jun 3" },
   { id: 6, name: "Content Calendar Bot", client: "Internal", phase: "Sandbox", health: "Strong", progress: 90, tone: "success", tasks: 6, blocking: 0, due: "May 10" },
 ];
@@ -124,7 +124,7 @@ export const INCOME_ROWS = [
 export const IDEA_INBOX = [
   { id: 1, title: "Proposal OS v2 — AI-generated proposals", score: 91, tags: ["Product", "High-value"], status: "Validate" },
   { id: 2, title: "Micro SaaS: Lead Scoring Tool", score: 84, tags: ["SaaS", "Automation"], status: "Research" },
-  { id: 3, title: "Nexious AI Membership Community", score: 72, tags: ["Community", "Recurring"], status: "Backlog" },
+  { id: 3, title: "Mabishion AI Membership Community", score: 72, tags: ["Community", "Recurring"], status: "Backlog" },
   { id: 4, title: "LinkedIn Content Engine (Done-for-you)", score: 88, tags: ["Service", "High-ticket"], status: "Validate" },
   { id: 5, title: "AI Business Audit — Group Workshop", score: 65, tags: ["Workshop", "Mid-ticket"], status: "Backlog" },
 ];

@@ -162,7 +162,15 @@ const WORKER_REGISTRY = {
 };
 
 export async function runWorker(workerName, input, config = {}, hooks = {}) {
-  const registry = WORKER_REGISTRY[workerName];
+  // Safe mapping of UI Skill IDs to active backend worker names
+  let actualWorkerName = workerName;
+  if (workerName === 'skill-code') actualWorkerName = 'developer';
+  else if (workerName === 'skill-design') actualWorkerName = 'website_builder';
+  else if (workerName === 'skill-plan') actualWorkerName = 'blueprint_maker';
+  else if (workerName === 'skill-research') actualWorkerName = 'business_analyst';
+  else if (workerName === 'skill-write') actualWorkerName = 'writer';
+
+  const registry = WORKER_REGISTRY[actualWorkerName];
   if (!registry) {
     throw new Error(`Unknown worker: ${workerName}. Available: ${Object.keys(WORKER_REGISTRY).join(', ')}`);
   }
@@ -170,9 +178,12 @@ export async function runWorker(workerName, input, config = {}, hooks = {}) {
   const mergedConfig = { ...registry.defaultConfig, ...config };
   const worker = new registry.workerClass(mergedConfig);
 
+  // Merge context config parameters (such as requirements_override) with hooks so they reach worker.run()
+  const runParams = { ...config, ...hooks };
+
   if (hooks.onStatus) hooks.onStatus(`Starting ${registry.name}...`);
 
-  const result = await worker.run(input, hooks);
+  const result = await worker.run(input, runParams);
 
   if (hooks.onStatus) hooks.onStatus(`${registry.name} complete!`);
 

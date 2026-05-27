@@ -65,7 +65,7 @@ async function callGroq(apiKey, prompt, systemInstruction) {
     body: JSON.stringify({
       model: model,
       messages: [
-        { role: 'system', content: systemInstruction || 'You are Mickii, Nexious AI Studio director.' },
+        { role: 'system', content: systemInstruction || 'You are Mickii, Mabishion AI director.' },
         { role: 'user', content: prompt }
       ],
       temperature: 0.7
@@ -143,7 +143,7 @@ async function callCerebras(apiKey, prompt, systemInstruction) {
     body: JSON.stringify({
       model: model,
       messages: [
-        { role: 'system', content: systemInstruction || 'You are Mickii, Nexious AI Studio director.' },
+        { role: 'system', content: systemInstruction || 'You are Mickii, Mabishion AI director.' },
         { role: 'user', content: prompt }
       ],
       temperature: 0.7
@@ -174,13 +174,13 @@ async function callOpenRouter(apiKey, prompt, systemInstruction) {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
-      'HTTP-Referer': 'https://nexious.ai',
-      'X-Title': 'Nexious AI Studio'
+      'HTTP-Referer': 'https://mabishion.ai',
+      'X-Title': 'Mabishion AI'
     },
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
       messages: [
-        { role: 'system', content: systemInstruction || 'You are Mickii, Nexious AI Studio director.' },
+        { role: 'system', content: systemInstruction || 'You are Mickii, Mabishion AI director.' },
         { role: 'user', content: prompt }
       ],
       temperature: 0.7

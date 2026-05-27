@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
-  "productName": "nexious-ai",
+  "productName": "mabishion-ai",
   "version": "0.1.0",
-  "identifier": "com.nexiousai.factory",
+  "identifier": "com.mabishion.factory",
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
@@ -20,8 +20,8 @@
       "icons/icon.ico"
     ],
     "category": "Business",
-    "copyright": "Nexious AI",
-    "longDescription": "Nexious AI — Adii's Private Desktop Factory for building client deliverables",
+    "copyright": "Mabishion AI",
+    "longDescription": "Mabishion AI — Adii's Private Desktop Factory for building client deliverables",
     "shortDescription": "Private AI Business Factory",
     "windows": {
       "certificateThumbprint": null,
@@ -41,7 +41,7 @@
         "minHeight": 700,
         "minWidth": 1200,
         "resizable": true,
-        "title": "Nexious AI — Private Desktop Factory",
+        "title": "Mabishion AI — Private Desktop Factory",
         "width": 1440,
         "center": true,
         "theme": "Dark"
@@ -50,7 +50,7 @@
   },
   "plugins": {
     "sql": {
-      "preload": ["sqlite:nexious.db"]
+      "preload": ["sqlite:mabishion.db"]
     }
   }
 }

@@ -112,7 +112,7 @@ export default function LeadForm({ onSubmitSuccess }) {
             <Icon name="person_add" className="text-violet-400" />
             Capture New Lead
           </h3>
-          <p className="text-xs text-slate-400">Nexious autonomous intake scorer activated</p>
+          <p className="text-xs text-slate-400">Mabishion autonomous intake scorer activated</p>
         </div>
         {calculatedScore !== null && (
           <div className="animate-bounce">

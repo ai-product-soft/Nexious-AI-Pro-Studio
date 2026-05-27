@@ -59,6 +59,13 @@ export default function DashboardScreen({ onNavigate }) {
   const [revenue, setRevenue] = useState(0);
   const [skillRunning, setSkillRunning] = useState(null); // null or skillId
   
+  // Quick Plan Config Modal States
+  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [planType, setPlanType] = useState('Website');
+  const [planDomain, setPlanDomain] = useState('E-Commerce');
+  const [planContext, setPlanContext] = useState('');
+  const [planUrl, setPlanUrl] = useState('');
+  
   // Mickii Autonomous Engine
   const { messages, send, status, isProcessing } = useMickiiAgent({
     model: 'llama-3.3-70b-versatile'
@@ -117,11 +124,32 @@ export default function DashboardScreen({ onNavigate }) {
     listen('trigger_skill', async (event) => {
       console.log('[UI] Received trigger_skill event:', event.payload);
       const { skillId, context } = event.payload;
+      
+      // Translate UI Skill IDs to core available worker names
+      let workerName = skillId;
+      if (skillId === 'skill-code') workerName = 'developer';
+      else if (skillId === 'skill-design') workerName = 'website_builder';
+      else if (skillId === 'skill-plan') workerName = 'blueprint_maker';
+      
+      // Dynamically resolve target project ID from SQLite database directly (avoiding state closure locks)
+      let targetId = 'demo-proj-1';
       try {
-        await runWorker(skillId, `Execute standard task for ${skillId}`, context);
-        alert(`Worker ${skillId} completed successfully!`);
+        const dbProjects = await getProjects();
+        if (dbProjects && dbProjects.length > 0) {
+          const activeProj = dbProjects.find(p => p.id && p.id !== 'p1' && p.id !== 'p2' && p.id !== 'p3') || dbProjects[0];
+          if (activeProj && activeProj.id) {
+            targetId = activeProj.id;
+          }
+        }
       } catch (err) {
-        alert(`Worker ${skillId} failed: ${err.message}`);
+        console.warn('[trigger_skill] Failed to query latest SQLite projects directly, falling back to demo-proj-1:', err);
+      }
+      
+      try {
+        await runWorker(workerName, targetId, context);
+        console.log(`[UI] Worker ${workerName} completed successfully for target ID ${targetId}`);
+      } catch (err) {
+        alert(`Worker ${workerName} failed: ${err.message}`);
       }
     }).then(u => { unlistenSkill = u; });
 
@@ -143,6 +171,45 @@ export default function DashboardScreen({ onNavigate }) {
       alert(`Error running skill "${skillId}": ${e}`);
     } finally {
       setSkillRunning(null);
+    }
+  };
+
+  const handleSkillClick = (skillId) => {
+    if (skillId === 'skill-plan') {
+      setIsPlanModalOpen(true);
+    } else {
+      runSkill(skillId);
+    }
+  };
+
+  const handleGeneratePlan = async () => {
+    setIsPlanModalOpen(false);
+    
+    // Construct rich context prompt based on user's selected dropdowns and input ideas!
+    const customRequirements = `
+Type of Build: ${planType}
+Business Domain: ${planDomain}
+Custom Ideas & Blueprint context: ${planContext || 'Standard planning request'}
+Reference URL or notes: ${planUrl || 'None'}
+    `.trim();
+
+    setSkillRunning('skill-plan');
+    try {
+      const result = await invoke('execute_skill', { 
+        skillId: 'skill-plan', 
+        context: { 
+          user: 'Adii',
+          requirements_override: customRequirements 
+        }
+      });
+      alert(`Plan Tool successfully executed!\nStatus: ${result.status || 'Success'}\nBlueprint Maker is now planning your ${planType} for ${planDomain} in the background!`);
+    } catch (e) {
+      alert(`Error running Plan Tool: ${e}`);
+    } finally {
+      setSkillRunning(null);
+      // Reset plan inputs
+      setPlanContext('');
+      setPlanUrl('');
     }
   };
 
@@ -173,12 +240,14 @@ export default function DashboardScreen({ onNavigate }) {
           <Button onClick={handleChatSend}><Icon name="send" size={17} /></Button>
         </div>
       }>
-      <ScreenHeader title="Dashboard" index="01"
+      <ScreenHeader title="Home" pageTitle="Dashboard" index="01"
         subtitle="Command center for Mickii's private earning operations. Run custom skills, approve lead actions, and track real-time analytics."
-        badgeLabel="Autonomous Cortex · Pure Local SQLite"
+        badgeLabel="Offline Local Engine · Secure SQLite"
         primaryAction="Review Approvals" primaryIcon="shield"
         secondaryAction="Skill Library" secondaryIcon="brain"
-        extraBadges={<><Badge tone="gold">{skills.length} Skills</Badge><Badge tone="success">Rs. 0 Cost Mode</Badge><Badge tone="violet">Mickii v4</Badge></>}
+        onPrimaryClick={() => onNavigate('approvals')}
+        onSecondaryClick={() => onNavigate('system-monitor')}
+        extraBadges={<><Badge tone="gold">{skills.length} Skills</Badge><Badge tone="success">Rs. 0 Cost Mode</Badge><Badge tone="violet">Mickii</Badge></>}
       />
       
       <section className="grid grid-cols-12 gap-5">
@@ -192,8 +261,14 @@ export default function DashboardScreen({ onNavigate }) {
             <Badge tone="gold">Master Skills</Badge>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {skills.slice(0, 3).map(skill => (
-              <button key={skill.id} onClick={() => runSkill(skill.id)}
+            {[...skills]
+              .sort((a, b) => {
+                const order = { 'skill-plan': 1, 'skill-design': 2, 'skill-code': 3 };
+                return (order[a.id] || 99) - (order[b.id] || 99);
+              })
+              .slice(0, 3)
+              .map(skill => (
+              <button key={skill.id} onClick={() => handleSkillClick(skill.id)}
                 className="rounded-[18px] p-4 text-left transition-all hover:-translate-y-1 hover:bg-white/5"
                 style={{ backgroundColor: 'rgba(255,255,255,.045)', border: `1px solid ${C.glassBorder}` }}>
                 <div className="flex items-center gap-3 mb-2">
@@ -350,6 +425,101 @@ export default function DashboardScreen({ onNavigate }) {
           </div>
         </div>
       </section>
+
+      {/* Plan Tool Configuration Modal */}
+      {isPlanModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
+          <div className="w-full max-w-lg p-6 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden text-left"
+               style={{ backgroundColor: '#0c0f17e0', ...glassStyle({ strong: true, glow: 'gold' }) }}>
+            <div className="absolute top-0 right-0 w-44 h-44 bg-yellow-500/5 rounded-full blur-3xl" />
+            
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📐</span>
+                <h3 className="text-lg font-black text-white">Setup Quick Plan Execution</h3>
+              </div>
+              <button onClick={() => setIsPlanModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                <Icon name="close" size={20} />
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-400 mb-5 leading-relaxed">
+              Configure target details so Mickii's Planning Worker can analyze competitors, market demands, and generate your real-time blueprints.
+            </p>
+
+            <div className="space-y-4">
+              {/* Type of Build Dropdown */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Type of Build (Kya banwana hai)</label>
+                <select 
+                  value={planType}
+                  onChange={(e) => setPlanType(e.target.value)}
+                  className="px-3.5 py-2.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-amber-500 cursor-pointer w-full"
+                >
+                  <option value="Website">Website / Landing Page</option>
+                  <option value="Mobile App">Mobile Application (iOS/Android)</option>
+                  <option value="SaaS Dashboard">SaaS Product / Web App</option>
+                  <option value="Automation Engine">Automation Workflow / Script</option>
+                  <option value="Custom CRM / Software">Custom CRM / Internal Software</option>
+                </select>
+              </div>
+
+              {/* Business Domain Dropdown */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Business Domain (Field / Industry)</label>
+                <select 
+                  value={planDomain}
+                  onChange={(e) => setPlanDomain(e.target.value)}
+                  className="px-3.5 py-2.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-amber-500 cursor-pointer w-full"
+                >
+                  <option value="Real Estate">Real Estate & Property Management</option>
+                  <option value="E-Commerce">E-Commerce & Digital retail</option>
+                  <option value="Digital Marketing">Digital Marketing & Leads Scraper</option>
+                  <option value="Finance / Fintech">Finance / Fintech / Crypto</option>
+                  <option value="Healthcare / Biotech">Healthcare / Biotech / Medical</option>
+                  <option value="Education / EdTech">Education / E-Learning</option>
+                  <option value="AI & SaaS">AI Platform & SaaS product</option>
+                </select>
+              </div>
+
+              {/* Context Idea Text Area */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Context & Core Ideas (Blueprint Notes)</label>
+                <textarea 
+                  rows={4}
+                  value={planContext}
+                  onChange={(e) => setPlanContext(e.target.value)}
+                  placeholder="Paste your context idea, rules, or core features here... e.g. I want to build a platform where users upload property details and AI writes ads."
+                  className="px-3.5 py-2.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-amber-500 w-full resize-none placeholder-gray-600"
+                />
+              </div>
+
+              {/* Reference URL or Notes */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Reference URL / Source Link (Optional)</label>
+                <input 
+                  type="text"
+                  value={planUrl}
+                  onChange={(e) => setPlanUrl(e.target.value)}
+                  placeholder="e.g., https://example.com/reference-landing-page"
+                  className="px-3.5 py-2.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-amber-500 w-full placeholder-gray-600"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <Button variant="soft" onClick={() => setIsPlanModalOpen(false)}>Cancel</Button>
+              <Button 
+                variant="glow"
+                onClick={handleGeneratePlan}
+                className="bg-amber-600/30 hover:bg-amber-600 border border-amber-500/40"
+              >
+                Generate Real-Time Plan
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }

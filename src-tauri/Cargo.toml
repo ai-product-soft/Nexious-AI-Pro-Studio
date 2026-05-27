@@ -1,8 +1,8 @@
 [package]
-name = "nexious-ai"
+name = "mabishion-ai"
 version = "0.1.0"
-description = "Nexious AI — Private Desktop Factory"
-authors = ["Adii / Nexious AI"]
+description = "Mabishion AI — Private Desktop Factory"
+authors = ["Adii / Mabishion AI"]
 edition = "2021"
 
 [build-dependencies]
