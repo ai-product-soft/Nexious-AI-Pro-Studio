@@ -3,6 +3,7 @@ import { C, glassStyle } from './consts';
 import MickiiOrb from './MickiiOrb';
 import Icon from './Icon';
 import nexiousLogo from '../assets/Mabishion-logo.png';
+import nexiousIcon from '../assets/Mabishion-icon.png';
 import Badge from './Badge';
 import { getPendingApprovals } from '../data/db.js';
 
@@ -65,7 +66,7 @@ export default function Sidebar({ activeNavId, onNavigate }) {
             <img src={nexiousLogo} alt="Mabishion AI" className="h-12 w-auto object-contain" />
           </div>
         ) : (
-          <img src={nexiousLogo} alt="Mabishion AI" className="h-8 w-auto object-contain" />
+          <img src={nexiousIcon} alt="Mabishion AI" className="h-8 w-auto object-contain rounded-lg" />
         )}
       </div>
 
