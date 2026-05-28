@@ -65,6 +65,8 @@ export default function DashboardScreen({ onNavigate }) {
   const [planDomain, setPlanDomain] = useState('E-Commerce');
   const [planContext, setPlanContext] = useState('');
   const [planUrl, setPlanUrl] = useState('');
+  const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
+  const [isDomainDropdownOpen, setIsDomainDropdownOpen] = useState(false);
   
   // Quick Design Config Modal States
   const [isDesignModalOpen, setIsDesignModalOpen] = useState(false);
@@ -505,39 +507,109 @@ Reference URL or notes: ${planUrl || 'None'}
 
             <div className="space-y-4">
               {/* Type of Build Dropdown */}
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 relative">
                 <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Type of Build (Kya banwana hai)</label>
-                <select 
-                  value={planType}
-                  onChange={(e) => setPlanType(e.target.value)}
-                  className="px-3.5 py-2.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-amber-500 cursor-pointer w-full"
-                  style={{ colorScheme: 'dark' }}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsTypeDropdownOpen(!isTypeDropdownOpen);
+                    setIsDomainDropdownOpen(false);
+                  }}
+                  className="px-3.5 py-2.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-amber-500 flex items-center justify-between cursor-pointer w-full text-left transition-all"
+                  style={{ border: '1px solid rgba(255, 255, 255, 0.08)' }}
                 >
-                  <option value="Website" className="bg-slate-900 text-white">Website / Landing Page</option>
-                  <option value="Mobile App" className="bg-slate-900 text-white">Mobile Application (iOS/Android)</option>
-                  <option value="SaaS Dashboard" className="bg-slate-900 text-white">SaaS Product / Web App</option>
-                  <option value="Automation Engine" className="bg-slate-900 text-white">Automation Workflow / Script</option>
-                  <option value="Custom CRM / Software" className="bg-slate-900 text-white">Custom CRM / Internal Software</option>
-                </select>
+                  <span>{
+                    planType === 'Website' ? 'Website / Landing Page' :
+                    planType === 'Mobile App' ? 'Mobile Application (iOS/Android)' :
+                    planType === 'SaaS Dashboard' ? 'SaaS Product / Web App' :
+                    planType === 'Automation Engine' ? 'Automation Workflow / Script' :
+                    planType === 'Custom CRM / Software' ? 'Custom CRM / Internal Software' : planType
+                  }</span>
+                  <span className={`text-[10px] text-gray-400 transition-transform duration-300 ${isTypeDropdownOpen ? 'rotate-180 text-amber-400' : ''}`}>▼</span>
+                </button>
+                {isTypeDropdownOpen && (
+                  <div className="absolute top-[100%] left-0 right-0 z-50 mt-1.5 p-1.5 bg-slate-900/95 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-200">
+                    {[
+                      { value: 'Website', label: 'Website / Landing Page' },
+                      { value: 'Mobile App', label: 'Mobile Application (iOS/Android)' },
+                      { value: 'SaaS Dashboard', label: 'SaaS Product / Web App' },
+                      { value: 'Automation Engine', label: 'Automation Workflow / Script' },
+                      { value: 'Custom CRM / Software', label: 'Custom CRM / Internal Software' }
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => {
+                          setPlanType(opt.value);
+                          setIsTypeDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3.5 py-2 text-xs rounded-xl transition-all flex items-center justify-between mb-0.5 last:mb-0 ${
+                          planType === opt.value 
+                            ? 'bg-amber-500/20 text-amber-300 font-black border-l-2 border-amber-500 pl-2.5' 
+                            : 'text-gray-300 hover:bg-white/[0.04] hover:text-white'
+                        }`}
+                      >
+                        <span>{opt.label}</span>
+                        {planType === opt.value && <span className="text-[10px] text-amber-400">✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Business Domain Dropdown */}
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 relative">
                 <label className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Business Domain (Field / Industry)</label>
-                <select 
-                  value={planDomain}
-                  onChange={(e) => setPlanDomain(e.target.value)}
-                  className="px-3.5 py-2.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-amber-500 cursor-pointer w-full"
-                  style={{ colorScheme: 'dark' }}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsDomainDropdownOpen(!isDomainDropdownOpen);
+                    setIsTypeDropdownOpen(false);
+                  }}
+                  className="px-3.5 py-2.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-amber-500 flex items-center justify-between cursor-pointer w-full text-left transition-all"
+                  style={{ border: '1px solid rgba(255, 255, 255, 0.08)' }}
                 >
-                  <option value="Real Estate" className="bg-slate-900 text-white">Real Estate & Property Management</option>
-                  <option value="E-Commerce" className="bg-slate-900 text-white">E-Commerce & Digital retail</option>
-                  <option value="Digital Marketing" className="bg-slate-900 text-white">Digital Marketing & Leads Scraper</option>
-                  <option value="Finance / Fintech" className="bg-slate-900 text-white">Finance / Fintech / Crypto</option>
-                  <option value="Healthcare / Biotech" className="bg-slate-900 text-white">Healthcare / Biotech / Medical</option>
-                  <option value="Education / EdTech" className="bg-slate-900 text-white">Education / E-Learning</option>
-                  <option value="AI & SaaS" className="bg-slate-900 text-white">AI Platform & SaaS product</option>
-                </select>
+                  <span>{
+                    planDomain === 'Real Estate' ? 'Real Estate & Property Management' :
+                    planDomain === 'E-Commerce' ? 'E-Commerce & Digital retail' :
+                    planDomain === 'Digital Marketing' ? 'Digital Marketing & Leads Scraper' :
+                    planDomain === 'Finance / Fintech' ? 'Finance / Fintech / Crypto' :
+                    planDomain === 'Healthcare / Biotech' ? 'Healthcare / Biotech / Medical' :
+                    planDomain === 'Education / EdTech' ? 'Education / E-Learning' :
+                    planDomain === 'AI & SaaS' ? 'AI Platform & SaaS product' : planDomain
+                  }</span>
+                  <span className={`text-[10px] text-gray-400 transition-transform duration-300 ${isDomainDropdownOpen ? 'rotate-180 text-amber-400' : ''}`}>▼</span>
+                </button>
+                {isDomainDropdownOpen && (
+                  <div className="absolute top-[100%] left-0 right-0 z-50 mt-1.5 p-1.5 bg-slate-900/95 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-200">
+                    {[
+                      { value: 'Real Estate', label: 'Real Estate & Property Management' },
+                      { value: 'E-Commerce', label: 'E-Commerce & Digital retail' },
+                      { value: 'Digital Marketing', label: 'Digital Marketing & Leads Scraper' },
+                      { value: 'Finance / Fintech', label: 'Finance / Fintech / Crypto' },
+                      { value: 'Healthcare / Biotech', label: 'Healthcare / Biotech / Medical' },
+                      { value: 'Education / EdTech', label: 'Education / E-Learning' },
+                      { value: 'AI & SaaS', label: 'AI Platform & SaaS product' }
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => {
+                          setPlanDomain(opt.value);
+                          setIsDomainDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3.5 py-2 text-xs rounded-xl transition-all flex items-center justify-between mb-0.5 last:mb-0 ${
+                          planDomain === opt.value 
+                            ? 'bg-amber-500/20 text-amber-300 font-black border-l-2 border-amber-500 pl-2.5' 
+                            : 'text-gray-300 hover:bg-white/[0.04] hover:text-white'
+                        }`}
+                      >
+                        <span>{opt.label}</span>
+                        {planDomain === opt.value && <span className="text-[10px] text-amber-400">✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Context Idea Text Area */}
