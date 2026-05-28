@@ -91,31 +91,48 @@ async function callGroq(apiKey, prompt, systemInstruction) {
  */
 async function callGemini(apiKey, prompt, systemInstruction) {
   const model = 'gemini-2.5-flash';
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [
-            { text: prompt }
-          ]
-        }
-      ],
-      systemInstruction: systemInstruction ? {
-        parts: [{ text: systemInstruction }]
-      } : undefined,
-      generationConfig: {
-        temperature: 0.7
-      }
-    })
-  });
+  let response;
+  let retries = 0;
+  const maxRetries = 1; // Retry Gemini safely once on transient failures
+  
+  while (retries <= maxRetries) {
+    try {
+      response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt }
+              ]
+            }
+          ],
+          systemInstruction: systemInstruction ? {
+            parts: [{ text: systemInstruction }]
+          } : undefined,
+          generationConfig: {
+            temperature: 0.7
+          }
+        })
+      });
 
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Gemini API returned ${response.status}: ${errText}`);
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Gemini API returned ${response.status}: ${errText}`);
+      }
+      
+      break; // Success! Break retry loop
+    } catch (err) {
+      retries++;
+      if (retries > maxRetries) {
+        throw err; // Out of retries, throw the error
+      }
+      console.warn(`[LLM Gemini Retry] Attempt failed, retrying safely once in 1.5s... Error:`, err.message || err);
+      await new Promise(r => setTimeout(r, 1500));
+    }
   }
 
   const data = await response.json();
