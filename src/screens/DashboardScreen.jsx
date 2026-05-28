@@ -511,12 +511,13 @@ Reference URL or notes: ${planUrl || 'None'}
                   value={planType}
                   onChange={(e) => setPlanType(e.target.value)}
                   className="px-3.5 py-2.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-amber-500 cursor-pointer w-full"
+                  style={{ colorScheme: 'dark' }}
                 >
-                  <option value="Website">Website / Landing Page</option>
-                  <option value="Mobile App">Mobile Application (iOS/Android)</option>
-                  <option value="SaaS Dashboard">SaaS Product / Web App</option>
-                  <option value="Automation Engine">Automation Workflow / Script</option>
-                  <option value="Custom CRM / Software">Custom CRM / Internal Software</option>
+                  <option value="Website" className="bg-slate-900 text-white">Website / Landing Page</option>
+                  <option value="Mobile App" className="bg-slate-900 text-white">Mobile Application (iOS/Android)</option>
+                  <option value="SaaS Dashboard" className="bg-slate-900 text-white">SaaS Product / Web App</option>
+                  <option value="Automation Engine" className="bg-slate-900 text-white">Automation Workflow / Script</option>
+                  <option value="Custom CRM / Software" className="bg-slate-900 text-white">Custom CRM / Internal Software</option>
                 </select>
               </div>
 
@@ -527,14 +528,15 @@ Reference URL or notes: ${planUrl || 'None'}
                   value={planDomain}
                   onChange={(e) => setPlanDomain(e.target.value)}
                   className="px-3.5 py-2.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-amber-500 cursor-pointer w-full"
+                  style={{ colorScheme: 'dark' }}
                 >
-                  <option value="Real Estate">Real Estate & Property Management</option>
-                  <option value="E-Commerce">E-Commerce & Digital retail</option>
-                  <option value="Digital Marketing">Digital Marketing & Leads Scraper</option>
-                  <option value="Finance / Fintech">Finance / Fintech / Crypto</option>
-                  <option value="Healthcare / Biotech">Healthcare / Biotech / Medical</option>
-                  <option value="Education / EdTech">Education / E-Learning</option>
-                  <option value="AI & SaaS">AI Platform & SaaS product</option>
+                  <option value="Real Estate" className="bg-slate-900 text-white">Real Estate & Property Management</option>
+                  <option value="E-Commerce" className="bg-slate-900 text-white">E-Commerce & Digital retail</option>
+                  <option value="Digital Marketing" className="bg-slate-900 text-white">Digital Marketing & Leads Scraper</option>
+                  <option value="Finance / Fintech" className="bg-slate-900 text-white">Finance / Fintech / Crypto</option>
+                  <option value="Healthcare / Biotech" className="bg-slate-900 text-white">Healthcare / Biotech / Medical</option>
+                  <option value="Education / EdTech" className="bg-slate-900 text-white">Education / E-Learning</option>
+                  <option value="AI & SaaS" className="bg-slate-900 text-white">AI Platform & SaaS product</option>
                 </select>
               </div>
 

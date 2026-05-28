@@ -440,9 +440,10 @@ export default function ResearchScreen({ onNavigate }) {
                   value={selectedProjectId} 
                   onChange={(e) => setSelectedProjectId(e.target.value)}
                   className="px-3 py-1.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-indigo-500 cursor-pointer min-w-[160px]"
+                  style={{ colorScheme: 'dark' }}
                 >
                   {Array.from(new Map(projectsList.map(p => [p.name, p])).values()).map(p => (
-                    <option key={p.id} value={p.id} className="bg-slate-950">{p.name}</option>
+                    <option key={p.id} value={p.id} className="bg-slate-950 text-white">{p.name}</option>
                   ))}
                 </select>
               </div>
@@ -454,9 +455,10 @@ export default function ResearchScreen({ onNavigate }) {
                   value={selectedLeadId} 
                   onChange={(e) => setSelectedLeadId(e.target.value)}
                   className="px-3 py-1.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-indigo-500 cursor-pointer min-w-[160px]"
+                  style={{ colorScheme: 'dark' }}
                 >
                   {Array.from(new Map(leadsList.map(l => [l.name, l])).values()).map(l => (
-                    <option key={l.id} value={l.id} className="bg-slate-950">{l.name}</option>
+                    <option key={l.id} value={l.id} className="bg-slate-950 text-white">{l.name}</option>
                   ))}
                 </select>
               </div>
@@ -468,11 +470,12 @@ export default function ResearchScreen({ onNavigate }) {
                   value={selectedProduct} 
                   onChange={(e) => setSelectedProduct(e.target.value)}
                   className="px-3 py-1.5 text-xs text-white bg-slate-950/80 border border-white/10 rounded-xl focus:outline-none focus:border-indigo-500 cursor-pointer min-w-[160px]"
+                  style={{ colorScheme: 'dark' }}
                 >
-                  <option value="Agency Kit" className="bg-slate-950">Agency Kit</option>
-                  <option value="AI Website Builder" className="bg-slate-950">AI Website Builder</option>
-                  <option value="Lead Engine" className="bg-slate-950">Lead Engine</option>
-                  <option value="Proposal OS" className="bg-slate-950">Proposal OS</option>
+                  <option value="Agency Kit" className="bg-slate-950 text-white">Agency Kit</option>
+                  <option value="AI Website Builder" className="bg-slate-950 text-white">AI Website Builder</option>
+                  <option value="Lead Engine" className="bg-slate-950 text-white">Lead Engine</option>
+                  <option value="Proposal OS" className="bg-slate-950 text-white">Proposal OS</option>
                 </select>
               </div>
             </div>
