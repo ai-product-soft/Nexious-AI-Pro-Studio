@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { C, glassStyle } from './consts';
 import MickiiOrb from './MickiiOrb';
@@ -12,13 +12,25 @@ export default function ScreenHeader({ title, pageTitle, subtitle, index, badgeL
   const navigate = useNavigate();
   const [logs, setLogs] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [hasNewNotifications, setHasNewNotifications] = useState(false);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     let active = true;
     const fetchLogs = async () => {
       try {
         const data = await getWorkerLogs();
-        if (active) setLogs(data ? data.slice(0, 5) : []);
+        if (active) {
+          const fetchedLogs = data ? data.slice(0, 5) : [];
+          setLogs(fetchedLogs);
+          if (fetchedLogs.length > 0) {
+            const newest = fetchedLogs[0];
+            const storedLastSeen = localStorage.getItem('mabishion_last_seen_notification_time') || '';
+            if (newest.timestamp !== storedLastSeen) {
+              setHasNewNotifications(true);
+            }
+          }
+        }
       } catch (err) {
         console.warn("[ScreenHeader] Worker logs fetch error:", err);
       }
@@ -31,6 +43,21 @@ export default function ScreenHeader({ title, pageTitle, subtitle, index, badgeL
     };
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+
+    if (showNotifications) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showNotifications]);
+
   const handleSearchClick = () => {
     const inputEl = document.querySelector('input[placeholder*="Ask"], input[placeholder*="anything"]');
     if (inputEl) {
@@ -41,6 +68,17 @@ export default function ScreenHeader({ title, pageTitle, subtitle, index, badgeL
         bar.classList.add('scale-105', 'shadow-2xl');
         setTimeout(() => bar.classList.remove('scale-105', 'shadow-2xl'), 300);
       }
+    }
+  };
+
+  const handleToggleNotifications = () => {
+    const nextShow = !showNotifications;
+    setShowNotifications(nextShow);
+    if (nextShow && logs.length > 0) {
+      // Mark as seen when opening the drawer
+      const newest = logs[0];
+      localStorage.setItem('mabishion_last_seen_notification_time', newest.timestamp);
+      setHasNewNotifications(false);
     }
   };
 
@@ -97,8 +135,17 @@ export default function ScreenHeader({ title, pageTitle, subtitle, index, badgeL
             <Icon name="search" size={17} />
           </Button>
           
-          <div className="relative">
-            <Button variant="soft" className="px-3 relative" onClick={() => setShowNotifications(!showNotifications)} title="System Log alerts">
+          <div className="relative" ref={containerRef}>
+            <Button 
+              variant={hasNewNotifications ? 'glow' : 'soft'} 
+              className={`px-3 relative transition-all duration-300 ${
+                hasNewNotifications 
+                  ? 'animate-pulse border-red-500/50 bg-red-950/20 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.5)] border' 
+                  : ''
+              }`}
+              onClick={handleToggleNotifications} 
+              title="System Log alerts"
+            >
               <Icon name="bell" size={17} />
               {logs.length > 0 && (
                 <span className="absolute top-1 right-1 flex h-2 w-2">
