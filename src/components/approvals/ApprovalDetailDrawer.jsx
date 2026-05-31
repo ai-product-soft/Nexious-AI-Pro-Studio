@@ -14,6 +14,39 @@ export default function ApprovalDetailDrawer({ approval, onClose, onResolve }) {
   const [modalTitle, setModalTitle] = useState('');
   const [modalContent, setModalContent] = useState('');
 
+  // Version History states (Problem 2)
+  const [activeTab, setActiveTab] = useState('doc'); // 'doc' or 'versions'
+  const [versionsList, setVersionsList] = useState([]);
+  const [v1, setV1] = useState('');
+  const [v2, setV2] = useState('');
+  const [diffResult, setDiffResult] = useState(null);
+
+  const loadVersions = async () => {
+    if (!approval?.project_id) return;
+    try {
+      const { getBlueprintVersions } = await import('../../data/db.js');
+      const list = await getBlueprintVersions(approval.project_id);
+      setVersionsList(list);
+      if (list && list.length > 0) {
+        setV1(list[list.length - 1]?.version || '1.0');
+        setV2(list[0]?.version || '1.0');
+      }
+    } catch (err) {
+      console.warn("Failed to load blueprint versions:", err);
+    }
+  };
+
+  const handleCompare = async () => {
+    if (!approval?.project_id || !v1 || !v2) return;
+    try {
+      const { getBlueprintDiff } = await import('../../data/db.js');
+      const diff = await getBlueprintDiff(approval.project_id, v1, v2);
+      setDiffResult(diff);
+    } catch (err) {
+      alert("Failed to compute diff: " + err.message);
+    }
+  };
+
   useEffect(() => {
     let active = true;
     const fetchContextData = async () => {
@@ -177,6 +210,20 @@ export default function ApprovalDetailDrawer({ approval, onClose, onResolve }) {
                   <p><strong className="text-slate-300">Project Type:</strong> {requestObj.projectName || 'AI Solution'}</p>
                   <p><strong className="text-slate-300">Client Partner:</strong> {requestObj.clientName || 'Priya Sharma'}</p>
                 </div>
+
+                {requestObj.validationIssues && requestObj.validationIssues.length > 0 && (
+                  <div className="p-3 rounded-xl border border-red-500/30 bg-red-950/20 shadow-[0_0_15px_rgba(239,68,68,0.15)] space-y-2 animate-pulse">
+                    <div className="flex items-center gap-1.5 text-red-400 text-[10px] uppercase font-black">
+                      <span className="material-icons text-xs text-red-500">warning</span>
+                      <span>Mickii Scanner Warnings ({requestObj.validationIssues.length})</span>
+                    </div>
+                    <ul className="list-disc pl-3.5 text-[9px] text-slate-300 space-y-1">
+                      {requestObj.validationIssues.map((issue, idx) => (
+                        <li key={idx} className="leading-snug">{issue}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 {/* Plain Hinglish Explainer for Non-Technical Owner */}
                 <details className="group border border-violet-500/30 rounded-xl overflow-hidden bg-violet-950/40" open>
@@ -378,19 +425,158 @@ export default function ApprovalDetailDrawer({ approval, onClose, onResolve }) {
             style={glassStyle({ glow: 'violet', strong: true })}
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-5">
+            <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-5 flex-shrink-0">
               <h2 className="text-xl font-black text-white">{modalTitle}</h2>
               <button 
-                onClick={() => setShowFullDocModal(false)}
+                onClick={() => {
+                  setShowFullDocModal(false);
+                  setActiveTab('doc');
+                  setDiffResult(null);
+                }}
                 className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all"
               >
                 <Icon name="close" size={20} />
               </button>
             </div>
+
+            {/* Tabs for Blueprint Maker Version Control (Problem 2) */}
+            {isBlueprintAction && (
+              <div className="flex gap-2.5 mb-5 border-b border-white/10 pb-2 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('doc')}
+                  className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${activeTab === 'doc' ? 'bg-violet-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                >
+                  📄 Document Preview
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('versions');
+                    loadVersions();
+                  }}
+                  className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${activeTab === 'versions' ? 'bg-violet-600 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                >
+                  🕒 Version History & Diff Compare
+                </button>
+              </div>
+            )}
             
-            <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin text-xs text-slate-300 leading-relaxed font-mono whitespace-pre-wrap bg-black/40 p-5 rounded-2xl border border-white/5 select-text selection:bg-violet-500/30">
-              {modalContent}
-            </div>
+            {activeTab === 'doc' ? (
+              <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin text-xs text-slate-300 leading-relaxed font-mono whitespace-pre-wrap bg-black/40 p-5 rounded-2xl border border-white/5 select-text selection:bg-violet-500/30">
+                {modalContent}
+              </div>
+            ) : (
+              <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin flex flex-col gap-5">
+                
+                {/* Selector Row */}
+                <div className="grid grid-cols-3 gap-4 items-end bg-white/5 p-4 rounded-2xl border border-white/10 flex-shrink-0">
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] uppercase font-black text-slate-400 block">Version 1 (Old)</label>
+                    <select
+                      value={v1}
+                      onChange={(e) => setV1(e.target.value)}
+                      className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-500"
+                    >
+                      <option value="">Select version</option>
+                      {versionsList.map(v => (
+                        <option key={v.version} value={v.version}>v{v.version} ({v.changes || 'No changes noted'})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] uppercase font-black text-slate-400 block">Version 2 (New)</label>
+                    <select
+                      value={v2}
+                      onChange={(e) => setV2(e.target.value)}
+                      className="w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-500"
+                    >
+                      <option value="">Select version</option>
+                      {versionsList.map(v => (
+                        <option key={v.version} value={v.version}>v{v.version} ({v.changes || 'No changes noted'})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <Button
+                    onClick={handleCompare}
+                    disabled={!v1 || !v2}
+                    className="py-2.5 rounded-xl text-xs font-black uppercase bg-violet-600 hover:bg-violet-500 w-full"
+                  >
+                    Compare with Previous
+                  </Button>
+                </div>
+
+                {/* Diff Output Box */}
+                {diffResult && (
+                  <div className="flex-1 flex flex-col gap-4 min-h-[300px]">
+                    
+                    {/* Auto-Message Notification Bar */}
+                    <div className="p-3 bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs rounded-xl flex items-center gap-2 font-black">
+                      <span className="material-icons text-sm">info</span>
+                      <span>{diffResult.diff_summary || `v${v2} vs v${v1} Comparison Report`}</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 flex-1">
+                      
+                      {/* Added Lines (Green) */}
+                      <div className="bg-emerald-950/20 border border-emerald-500/20 rounded-2xl p-4 flex flex-col text-left">
+                        <span className="text-[10px] uppercase font-black text-emerald-400 block mb-2 flex items-center gap-1.5">
+                          <span className="material-icons text-sm text-emerald-400">add_circle</span> Added Requirements / Scope
+                        </span>
+                        <div className="flex-1 overflow-y-auto pr-1 text-slate-300 font-mono text-[10px] space-y-1.5 leading-relaxed max-h-[220px]">
+                          {diffResult.added && diffResult.added.length > 0 ? (
+                            diffResult.added.map((item, idx) => (
+                              <div key={idx} className="p-2 bg-emerald-500/5 border border-emerald-500/10 rounded-lg text-emerald-300">
+                                {item}
+                              </div>
+                            ))
+                          ) : (
+                            <span className="text-slate-500 italic block mt-2">No additions detected.</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Removed Lines (Red) */}
+                      <div className="bg-rose-950/20 border border-rose-500/20 rounded-2xl p-4 flex flex-col text-left">
+                        <span className="text-[10px] uppercase font-black text-rose-400 block mb-2 flex items-center gap-1.5">
+                          <span className="material-icons text-sm text-rose-400">remove_circle</span> Removed Requirements / Scope
+                        </span>
+                        <div className="flex-1 overflow-y-auto pr-1 text-slate-300 font-mono text-[10px] space-y-1.5 leading-relaxed max-h-[220px]">
+                          {diffResult.removed && diffResult.removed.length > 0 ? (
+                            diffResult.removed.map((item, idx) => (
+                              <div key={idx} className="p-2 bg-rose-500/5 border border-rose-500/10 rounded-lg text-rose-300">
+                                {item}
+                              </div>
+                            ))
+                          ) : (
+                            <span className="text-slate-500 italic block mt-2">No removals detected.</span>
+                          )}
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+                )}
+
+                {/* Versions Checklist / History Ledger */}
+                <div className="bg-black/30 border border-white/5 rounded-2xl p-4 flex-shrink-0 text-left">
+                  <span className="text-[10px] uppercase font-black text-slate-400 block mb-3">Version Changelog Ledger</span>
+                  <div className="space-y-2">
+                    {versionsList.map(v => (
+                      <div key={v.version} className="flex justify-between items-center p-2.5 bg-white/[0.02] border border-white/5 rounded-xl text-xs">
+                        <div className="flex items-center gap-3">
+                          <span className="px-2 py-0.5 rounded-md bg-violet-600/30 text-violet-300 font-black text-[10px]">v{v.version}</span>
+                          <span className="text-slate-300 font-bold">{v.changes || 'Initial Blueprint Specification'}</span>
+                        </div>
+                        <span className="text-[10px] text-slate-500">{new Date(v.created_at).toLocaleDateString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            )}
           </div>
         </div>
       )}

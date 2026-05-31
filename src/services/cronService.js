@@ -102,14 +102,19 @@ export async function runAutoApproveJob() {
     
     // Check if expired
     if (now >= expiresAt) {
-      console.log(`[Cron Engine] Auto-approving expired approval ID: ${approval.id} (Title: ${approval.title})`);
+      const isStandard = approval.type === 'standard' || approval.type === 'Standard';
       
-      const auditNote = `Auto-approved by Mabishion Cron Gate after timeout at ${now.toISOString()}`;
+      const finalStatus = isStandard ? 'approved' : 'rejected';
+      const auditNote = isStandard 
+        ? `Auto-approved by Mabishion Cron Gate after timeout at ${now.toISOString()}`
+        : `Auto-rejected by Mabishion Cron Gate (Critical timeout) at ${now.toISOString()}`;
+      
+      console.log(`[Cron Engine] Expired item ID: ${approval.id} (${approval.title}). Status set to: ${finalStatus}`);
       
       // Update in SQLite
       await db.execute(
         "UPDATE approvals SET status = $1, owner_notes = $2 WHERE id = $3",
-        ['approved', auditNote, approval.id]
+        [finalStatus, auditNote, approval.id]
       );
 
       // Log action inside action_ledger if exists
@@ -117,7 +122,7 @@ export async function runAutoApproveJob() {
         const ledgerId = crypto.randomUUID();
         await db.execute(
           "INSERT INTO action_ledger (id, action_type, decision, risk_level, rollback_data) VALUES ($1, $2, $3, $4, $5)",
-          [ledgerId, 'Auto-Approve', `Approved: ${approval.title}`, approval.type, JSON.stringify(approval)]
+          [ledgerId, isStandard ? 'Auto-Approve' : 'Auto-Reject', `${isStandard ? 'Approved' : 'Rejected'}: ${approval.title}`, approval.type, JSON.stringify(approval)]
         );
       } catch (ledgerErr) {
         console.warn("[Cron Engine] Ledger log skipped:", ledgerErr);
@@ -128,7 +133,7 @@ export async function runAutoApproveJob() {
   }
 
   if (count > 0) {
-    console.log(`[Cron Engine] Auto-approved ${count} expired pending items.`);
+    console.log(`[Cron Engine] Processed ${count} expired pending items.`);
   }
 }
 

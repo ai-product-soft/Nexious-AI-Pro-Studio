@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/nex-banner.png?v=2" alt="Nexious AI Studio Banner" width="100%">
+  <img src="assets/nex-banner.png?v=2" alt="Mabishion AI Studio Banner" width="100%">
 </p>
 
-<h1 align="center">Nexious AI Studio v4.0</h1>
+<h1 align="center">Mabishion AI Studio v4.0</h1>
 
 <p align="center">
   <strong>The First Fully Autonomous AI Agency Operating System</strong><br>
@@ -13,9 +13,9 @@
 
 ## 🎯 Vision
 
-**Nexious AI Studio** was born from a single belief: *A solo operator should be able to run a full-service digital agency without hiring a team.*
+**Mabishion AI Studio** was born from a single belief: *A solo operator should be able to run a full-service digital agency without hiring a team.*
 
-In 2025, digital marketing agencies spend 60-70% of revenue on payroll, project management overhead, and coordination chaos. **Nexious eliminates that.** It is not just a CRM, not just a project tracker, and not just an AI chatbot. It is a **complete operating system** where 22 specialized AI workers handle everything from lead generation to website delivery — under one local-first, privacy-focused desktop application.
+In 2025, digital marketing agencies spend 60-70% of revenue on payroll, project management overhead, and coordination chaos. **Mabishion eliminates that.** It is not just a CRM, not just a project tracker, and not just an AI chatbot. It is a **complete operating system** where 22 specialized AI workers handle everything from lead generation to website delivery — under one local-first, privacy-focused desktop application.
 
 **Why it was built:**
 - To remove dependency on 10+ SaaS subscriptions (Zapier, Notion, HubSpot, Figma, Canva, Buffer, etc.)
@@ -27,7 +27,7 @@ In 2025, digital marketing agencies spend 60-70% of revenue on payroll, project 
 
 ## 🚀 What Makes It Different
 
-| Traditional Stack | Nexious AI Studio |
+| Traditional Stack | Mabishion AI Studio |
 |-------------------|-------------------|
 | 10+ SaaS tools ($500+/mo) | **One desktop app (FREE)** |
 | 5-10 employees | **22 AI Workers** |
@@ -68,9 +68,9 @@ Every worker is a specialized LLM agent with:
 
 ## 🎯 Vision
 
-**Nexious AI Studio** was born from a single belief: *A solo operator should be able to run a full-service digital agency without hiring a team.*
+**Mabishion AI Studio** was born from a single belief: *A solo operator should be able to run a full-service digital agency without hiring a team.*
 
-In 2025, digital marketing agencies spend 60-70% of revenue on payroll, project management overhead, and coordination chaos. **Nexious eliminates that.** It is not just a CRM, not just a project tracker, and not just an AI chatbot. It is a **complete operating system** where 22 specialized AI workers handle everything from lead generation to website delivery — under one local-first, privacy-focused desktop application.
+In 2025, digital marketing agencies spend 60-70% of revenue on payroll, project management overhead, and coordination chaos. **Mabishion eliminates that.** It is not just a CRM, not just a project tracker, and not just an AI chatbot. It is a **complete operating system** where 22 specialized AI workers handle everything from lead generation to website delivery — under one local-first, privacy-focused desktop application.
 
 **Why it was built:**
 - To remove dependency on 10+ SaaS subscriptions (Zapier, Notion, HubSpot, Figma, Canva, Buffer, etc.)
@@ -82,7 +82,7 @@ In 2025, digital marketing agencies spend 60-70% of revenue on payroll, project 
 
 ## 🚀 What Makes It Different
 
-| Traditional Stack | Nexious AI Studio |
+| Traditional Stack | Mabishion AI Studio |
 |-------------------|-------------------|
 | 10+ SaaS tools ($500+/mo) | **One desktop app (FREE)** |
 | 5-10 employees | **22 AI Workers** |
@@ -220,10 +220,10 @@ Every worker is a specialized LLM agent with:
 
 ### Linux (Ubuntu/Debian)
 ```bash
-sudo dpkg -i nexious-ai_0.1.0_amd64.deb
+sudo dpkg -i mabishion-ai_0.1.0_amd64.deb
 # Or portable:
-chmod +x nexious-ai_0.1.0_amd64.AppImage
-./nexious-ai_0.1.0_amd64.AppImage
+chmod +x mabishion-ai_0.1.0_amd64.AppImage
+./mabishion-ai_0.1.0_amd64.AppImage
 
 Windows
 Download .msi from Releases → Double click → Install
@@ -294,7 +294,7 @@ Phase	Feature	Status
 ⏳ v5.0	Multi-tenant Client Portal	Future
 🎨 Branding
 <p align="center">
-  <img src="assets/nexious-ai-banner.png?v=2" alt="Nexious AI Logo" width="60%">
+  <img src="assets/mabishion-ai-banner.png?v=2" alt="Mabishion AI Logo" width="60%">
 </p>
 🤝 Contributing
 This is a private project currently. For access or collaboration inquiries:
@@ -314,6 +314,6 @@ This software is not open-source. The codebase, worker prompts, and architecture
     SQLite — Zero-config local database
 
     "One human. Twenty-two workers. Infinite scale."
-    — Nexious AI Studio
+    — Mabishion AI Studio
 
 Built with 🔥 in India. Powered by AI. Owned by you.

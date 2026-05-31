@@ -1,6 +1,6 @@
 import React from 'react';
 import { C } from './consts';
-import nexiousAvatar from '../assets/mickii-avatar.png';
+import mickiiAvatar from '../assets/mickii-avatar.png';
 
 export default function MickiiOrb({ size = 'md', isThinking = false }) {
   const px = size === 'lg' ? 56 : 34;
@@ -24,7 +24,7 @@ export default function MickiiOrb({ size = 'md', isThinking = false }) {
           animation: `${isThinking ? 'mThink 1s linear infinite,' : ''} mGlow ${isThinking ? '0.5s' : '3.4s'} ease-in-out infinite`,
           border: `1.5px solid ${C.gold}80`
         }}>
-        <img src={nexiousAvatar} alt="Mickii" className="h-full w-full object-cover opacity-90" />
+        <img src={mickiiAvatar} alt="Mickii" className="h-full w-full object-cover opacity-90" />
       </div>
 
       <div className="absolute rounded-full blur-[1px]" 

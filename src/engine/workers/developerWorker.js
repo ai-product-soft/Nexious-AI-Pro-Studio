@@ -1,6 +1,9 @@
 import { BaseWorker } from './baseWorker.js';
 import { getDb } from '../../data/db.js';
 import { executeLlmWithFallback } from '../../services/llmManager.js';
+import { CodeValidator } from '../validators/codeValidator.js';
+import { ClientProfile } from '../memory/clientProfile.js';
+import { ComplexityAnalyzer } from '../orchestrator/complexityAnalyzer.js';
 
 export class DeveloperWorker extends BaseWorker {
   constructor() {
@@ -28,6 +31,32 @@ export class DeveloperWorker extends BaseWorker {
     const moduleName  = params.module_name  || 'Dashboard Component';
     const techStack   = params.tech_stack   || 'React 18, Tailwind CSS, Vite, SQLite';
 
+    // ── Kimi Client Context Enrichment ───────────────────────────────────────
+    const clientProfileHelper = new ClientProfile(db);
+    let clientEnrichmentPrompt = '';
+    try {
+      const clientRecord = await clientProfileHelper.getByName(clientName);
+      if (clientRecord && clientRecord.length > 0) {
+        const client = clientRecord[0];
+        clientEnrichmentPrompt = `Client Budget: $${client.budget || 0} | Business Sector: ${client.business || 'Standard'} | Past Preferences: ${JSON.stringify(client.preferences || {})}`;
+      }
+    } catch (err) {
+      console.warn('[DeveloperWorker] Failed to query client profile for prompt enrichment:', err);
+    }
+
+    // ── Kimi Complexity Analysis ─────────────────────────────────────────────
+    const complexityAnalyzerHelper = new ComplexityAnalyzer();
+    const requirements = params.requirements_override || project.notes || `Build a ${moduleName} for ${projectName}`;
+    const complexityResult = complexityAnalyzerHelper.analyze({
+      description: requirements,
+      productType,
+      domain: project.domain || 'Digital Services'
+    });
+
+    const complexityHint = complexityResult.score > 7 
+      ? `🚨 HIGH COMPLEXITY WARNING (Score: ${complexityResult.score}/10): This module has critical design, security, and algorithmic complexity. Ensure comprehensive code architecture, highly optimized operations, and maximum safety checks.`
+      : `Standard complexity module execution (Score: ${complexityResult.score}/10).`;
+
     // ── 2. Fetch blueprint context ────────────────────────────────────────────
     let prdContext = '';
     let techStackFromBlueprint = techStack;
@@ -46,11 +75,14 @@ export class DeveloperWorker extends BaseWorker {
     } catch { /* non-fatal */ }
 
     const finalStack = params.tech_stack || techStackFromBlueprint;
-    const requirements = params.requirements_override || project.notes || `Build a ${moduleName} for ${projectName}`;
 
     // ── 3. LLM CALL 1 — Source Code ──────────────────────────────────────────
     const codeSystemPrompt = `You are Mickii Senior Developer — an expert full-stack engineer specializing in React, Node.js, and AI integrations.
 Generate production-ready source code for the requested module.
+
+COMPLEXITY HINT:
+${complexityHint}
+
 Return a valid JSON object with these keys ONLY:
 {
   "mainComponent": { "filename": "ComponentName.jsx", "code": "full source code here" },
@@ -73,6 +105,7 @@ Rules:
 Module: ${moduleName}
 Project: ${projectName} (${projectType})
 Client: ${clientName}
+${clientEnrichmentPrompt ? 'Client Context: ' + clientEnrichmentPrompt : ''}
 Tech Stack: ${finalStack}
 Requirements: ${requirements}
 ${prdContext ? 'PRD Context: ' + prdContext : ''}
@@ -80,17 +113,94 @@ ${prdContext ? 'PRD Context: ' + prdContext : ''}
 Generate complete production code for this module.`;
 
     let codeData = null;
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    let codeIssues = [];
+    let strikes = 0;
+    const maxStrikes = 3;
+    let currentCodeSystemPrompt = codeSystemPrompt;
+
+    while (strikes < maxStrikes) {
+      let rawText = '';
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          rawText = await executeLlmWithFallback(codeUserPrompt, currentCodeSystemPrompt);
+          break;
+        } catch (err) {
+          console.warn(`[DeveloperWorker] Code LLM attempt ${attempt}/3 failed:`, err.message);
+          if (attempt < 3) await new Promise(r => setTimeout(r, 1500 * attempt));
+        }
+      }
+
+      if (!rawText) {
+        break; // Fallback will handle it
+      }
+
       try {
-        const raw = await executeLlmWithFallback(codeUserPrompt, codeSystemPrompt);
-        let clean = raw.trim();
+        let clean = rawText.trim();
         if (clean.startsWith('```')) clean = clean.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
         codeData = JSON.parse(clean);
-        break;
+
+        // Perform strict code validation
+        codeIssues = [];
+        const codeText = codeData?.mainComponent?.code || '';
+        const filename = codeData?.mainComponent?.filename || '';
+
+        // 1. Hardcoded brand leak check
+        if (/mabishion/i.test(codeText) || /nexious/i.test(codeText)) {
+          codeIssues.push('Hardcoded brand reference ("Mabishion" or "Nexious") found in the generated source code.');
+        }
+
+        // 2. Generic component name check
+        const genericNames = ['generic', 'placeholder', 'testcomponent', 'dummycomponent', 'componentname'];
+        const lowerFilename = filename.toLowerCase();
+        const isGenericFilename = genericNames.some(name => lowerFilename.includes(name)) || lowerFilename === 'component.jsx';
+
+        if (isGenericFilename) {
+          codeIssues.push(`Generic component name or filename found: "${filename}". Please use client-specific, descriptive component names.`);
+        }
+
+        // 3. Kimi CodeValidator Integration
+        const codeValidatorHelper = new CodeValidator();
+        const codeValidationResult = codeValidatorHelper.validate(codeText);
+        if (!codeValidationResult.valid) {
+          codeValidationResult.findings.forEach(f => {
+            const fName = f.name || f.id || 'Security Finding';
+            const fRec = f.recommendation || `Matches pattern: ${f.matches ? f.matches.join(', ') : 'unknown'}`;
+            const fLine = f.line ? ` (Line ${f.line})` : '';
+            codeIssues.push(`${fName} (Severity: ${f.severity}): ${fRec}${fLine}`);
+          });
+          if (codeValidationResult.syntaxErrors) {
+            codeValidationResult.syntaxErrors.forEach(s => {
+              codeIssues.push(`Syntax Check: ${s.name || s.id || 'Syntax anomaly detected'}`);
+            });
+          }
+        }
+
+        if (codeIssues.length === 0) {
+          break; // Passed validation!
+        }
       } catch (err) {
-        console.warn(`[DeveloperWorker] Code LLM attempt ${attempt}/3 failed:`, err.message);
-        if (attempt < 3) await new Promise(r => setTimeout(r, 1500 * attempt));
+        codeIssues = [`Invalid JSON returned: ${err.message}`];
       }
+
+      strikes++;
+      console.warn(`[Developer Worker] Strike ${strikes}/${maxStrikes} - Code validation failed:`, codeIssues);
+
+      // Feed validation error feedback back to prompt for the next strike
+      currentCodeSystemPrompt = `${codeSystemPrompt}
+
+🚨 IMPORTANT REVISION FEEDBACK (STRIKE ${strikes}/${maxStrikes}):
+Your previous generated code/JSON failed strict content validation with the following issues:
+${codeIssues.map(issue => `- ${issue}`).join('\n')}
+
+Please regenerate the valid JSON. Ensure:
+1. Under no circumstances should the component code, comments, or UI texts contain the developer brand name "Mabishion" or "Nexious".
+2. Use descriptive, client-specific component names instead of generic names like "GenericComponent" or "ComponentName".
+3. Return ONLY valid JSON format.`;
+    }
+
+    if (codeIssues.length > 0 && strikes >= maxStrikes) {
+      console.error('[Developer Worker] Strict Code Validation Failed after 3 strikes!', codeIssues);
+      throw new Error(`Strict Code Validation Failed after 3 strikes: ${codeIssues.join('; ')}`);
     }
 
     // ── 4. LLM CALL 2 — Unit Tests ───────────────────────────────────────────
@@ -107,6 +217,8 @@ Return ONLY the test file code as plain text (no JSON wrapper, no markdown fence
         if (attempt < 3) await new Promise(r => setTimeout(r, 1500 * attempt));
       }
     }
+
+    testCode = testCode || `// Tests pending — manual review required\n`;
 
     // ── 5. Fallback code if LLM fails ─────────────────────────────────────────
     if (!codeData) {

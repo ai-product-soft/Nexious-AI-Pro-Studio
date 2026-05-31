@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { C, glassStyle } from './consts';
 import MickiiOrb from './MickiiOrb';
 import Icon from './Icon';
-import nexiousLogo from '../assets/Mabishion-logo.png';
-import nexiousIcon from '../assets/Mabishion-icon.png';
+import mabishionLogo from '../assets/Mabishion-logo.png';
+import mabishionIcon from '../assets/Mabishion-icon.png';
 import Badge from './Badge';
 import { getPendingApprovals } from '../data/db.js';
 
@@ -63,10 +63,10 @@ export default function Sidebar({ activeNavId, onNavigate }) {
         }}>
         {expanded ? (
           <div className="min-w-0">
-            <img src={nexiousLogo} alt="Mabishion AI" className="h-12 w-auto object-contain" />
+            <img src={mabishionLogo} alt="Mabishion AI" className="h-12 w-auto object-contain" />
           </div>
         ) : (
-          <img src={nexiousIcon} alt="Mabishion AI" className="h-8 w-auto object-contain rounded-lg" />
+          <img src={mabishionIcon} alt="Mabishion AI" className="h-8 w-auto object-contain rounded-lg" />
         )}
       </div>
 
@@ -77,15 +77,14 @@ export default function Sidebar({ activeNavId, onNavigate }) {
             <button key={item.id}
               title={item.label}
               onClick={() => onNavigate(item.id)}
-              className="relative flex h-10 items-center rounded-2xl text-xs transition-all duration-200"
+              className={`relative flex h-10 items-center rounded-2xl text-xs transition-all duration-200 ${active ? 'bg-indigo-600/20 border-l-2 border-indigo-500' : ''}`}
               style={{
                 justifyContent: expanded ? 'flex-start' : 'center',
                 gap: expanded ? 12 : 0,
                 padding: expanded ? '0 14px' : 0,
-                color: active ? C.softGold : C.mutedLow,
-                backgroundColor: active ? `${C.gold}1A` : 'transparent'
+                color: active ? '#FFF' : C.mutedLow,
               }}>
-              {active && <span className="absolute -left-3 h-7 w-1 rounded-full" style={{ backgroundColor: C.gold }} />}
+
               <Icon name={item.icon} size={18} />
               
               {expanded && (

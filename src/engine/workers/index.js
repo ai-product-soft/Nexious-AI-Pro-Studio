@@ -25,6 +25,7 @@ import { McpHubWorker } from './mcpHubWorker.js';
 import { NotificationWorker } from './notificationWorker.js';
 import { WriterWorker } from './writerWorker.js';
 import { ImageGenWorker } from './imageGenWorker.js';
+import { QualityAssuranceWorker } from './qualityAssuranceWorker.js';
 
 const WORKER_REGISTRY = {
   lead_gen: {
@@ -139,6 +140,12 @@ const WORKER_REGISTRY = {
     name: 'MCP Hub',
     description: 'SYSTEM — MCP server registry, health checks, tool management (no approval)',
     workerClass: McpHubWorker,
+    defaultConfig: {}
+  },
+  qa_worker: {
+    name: 'QA Validator',
+    description: 'SYSTEM — LLM output validation and self-correction loop (no approval)',
+    workerClass: QualityAssuranceWorker,
     defaultConfig: {}
   },
   notification: {

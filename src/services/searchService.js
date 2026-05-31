@@ -17,6 +17,11 @@ export const SearchService = {
    * @param {boolean} forceLive Bypass cache and perform a live API network request
    */
   async performSearch(query, forceLive = false) {
+    const serperKey = await getSetting("serper_api_key");
+    const exaKey = await getSetting("exa_api_key");
+    console.log("[SearchService] Serper key exists:", !!serperKey, "Length:", serperKey?.length);
+    console.log("[SearchService] Exa key exists:", !!exaKey, "Length:", exaKey?.length);
+
     const startTime = Date.now();
     const cleanQuery = query ? query.trim() : '';
 

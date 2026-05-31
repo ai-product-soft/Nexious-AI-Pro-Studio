@@ -36,8 +36,8 @@ export async function validateApiKey(provider, apiKey) {
       return res.status === 200;
     }
 
-    if (provider === 'openrouter') {
-      const res = await fetch('https://openrouter.ai/api/v1/models', {
+    if (provider === 'nvidia_nim') {
+      const res = await fetch('https://integrate.api.nvidia.com/v1/models', {
         headers: {
           'Authorization': `Bearer ${apiKey}`
         }
@@ -183,20 +183,18 @@ async function callCerebras(apiKey, prompt, systemInstruction) {
 }
 
 /**
- * Execute Chat Completion through OpenRouter
+ * Execute Chat Completion through NVIDIA NIM
  */
-async function callOpenRouter(apiKey, prompt, systemInstruction) {
-  const model = 'openrouter/auto';
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+async function callNvidiaNim(apiKey, prompt, systemInstruction) {
+  const model = 'mistralai/mistral-nemo';
+  const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-      'HTTP-Referer': 'https://mabishion.ai',
-      'X-Title': 'Mabishion AI'
+      'Authorization': `Bearer ${apiKey}`
     },
     body: JSON.stringify({
-      model: 'google/gemini-2.5-flash',
+      model: model,
       messages: [
         { role: 'system', content: systemInstruction || 'You are Mickii, Mabishion AI director.' },
         { role: 'user', content: prompt }
@@ -207,7 +205,7 @@ async function callOpenRouter(apiKey, prompt, systemInstruction) {
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`OpenRouter API returned ${response.status}: ${errText}`);
+    throw new Error(`NVIDIA NIM API returned ${response.status}: ${errText}`);
   }
 
   const data = await response.json();
@@ -220,7 +218,7 @@ async function callOpenRouter(apiKey, prompt, systemInstruction) {
 }
 
 /**
- * Master fallback runner that sequences: Groq -> Gemini -> Cerebras -> OpenRouter
+ * Master fallback runner that sequences: Groq -> Gemini -> Cerebras -> NVIDIA NIM
  * @param {string} prompt Prompt content
  * @param {string} systemInstruction Optional system directives
  * @returns {Promise<string>} LLM text completion
@@ -230,7 +228,7 @@ export async function executeLlmWithFallback(prompt, systemInstruction = '') {
     { provider: 'groq', keyName: 'groq_api_key', runner: callGroq },
     { provider: 'gemini', keyName: 'gemini_api_key', runner: callGemini },
     { provider: 'cerebras', keyName: 'cerebras_api_key', runner: callCerebras },
-    { provider: 'openrouter', keyName: 'openrouter_api_key', runner: callOpenRouter }
+    { provider: 'nvidia_nim', keyName: 'nvidia_nim_api_key', runner: callNvidiaNim }
   ];
 
   let errors = [];
@@ -280,9 +278,18 @@ export async function executeLlmWithFallback(prompt, systemInstruction = '') {
 
   // If offline/emergency mode, trigger locally simulated Llama response
   console.warn("[LLM Fallback] All APIs in fallback chain failed. Resorting to local emergency simulated brain.");
-  const localSimulatedResponse = `[Emergency Offline Mode] Mickii here! All external APIs failed. 
-Here is a simulated diagnostic answer for your prompt: "${prompt.slice(0, 100)}...". 
-Please ensure your API keys (Groq/Gemini/Cerebras/OpenRouter) are set correctly and connected in the Settings Screen.`;
+  const localSimulatedResponse = `
+# Technical Specifications & Requirements
+This is an emergency offline generated response.
+- Feature 1: Core functionality implementation
+- Feature 2: Data processing module
+- Feature 3: Offline capability
+
+Scope: Develop the requested business application.
+
+Original Request Context:
+${prompt.slice(0, 500)}
+`;
 
   await logLlmUsage('local_offline', 'Gemma-3-4B-Simulated', 10, 20, 30, 'SUCCESS_OFFLINE');
   return localSimulatedResponse;

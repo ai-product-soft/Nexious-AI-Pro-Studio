@@ -99,7 +99,7 @@ export class NotificationWorker extends BaseWorker {
       let inappDispatched = false;
       if (cfg.channels.includes('inapp') && typeof window !== 'undefined') {
         try {
-          window.dispatchEvent(new CustomEvent('nexious_notification', {
+          window.dispatchEvent(new CustomEvent('mabishion_notification', {
             detail: { id: notifId, title, message, priority, badge: cfg.badge, sound: cfg.sound }
           }));
           inappDispatched = true;

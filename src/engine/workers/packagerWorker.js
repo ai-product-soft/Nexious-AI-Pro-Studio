@@ -2,6 +2,8 @@ import { BaseWorker } from './baseWorker.js';
 import { getDb } from '../../data/db.js';
 import { executeLlmWithFallback } from '../../services/llmManager.js';
 import JSZip from 'jszip';
+import { writeFile, BaseDirectory } from '@tauri-apps/plugin-fs';
+import { desktopDir, join } from '@tauri-apps/api/path';
 
 export class PackagerWorker extends BaseWorker {
   constructor() {
@@ -279,6 +281,34 @@ Date         : _______________________`;
 
       // Generate ZIP as base64
       zipBase64 = await zip.generateAsync({ type: 'base64', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+
+      // [NEW] Attempt to write physical file to Desktop (Tauri desktop environment)
+      try {
+        if (window.__TAURI_INTERNALS__) {
+          const zipUint8Array = await zip.generateAsync({ type: 'uint8array' });
+          const desktopPath = await desktopDir();
+          const cleanName = clientName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+          const fileName = `${cleanName}_deliverables_${versionTag}.zip`;
+          const filePath = await join(desktopPath, fileName);
+          
+          await writeFile(filePath, zipUint8Array);
+          console.log(`[PackagerWorker] Successfully wrote physical ZIP to: ${filePath}`);
+        } else {
+          // Browser fallback for testing
+          const blob = await zip.generateAsync({ type: 'blob' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${clientName.replace(/[^a-z0-9]/gi, '_')}_deliverables_${versionTag}.zip`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          console.log('[PackagerWorker] Triggered browser download fallback.');
+        }
+      } catch (fsErr) {
+        console.warn('[PackagerWorker] Failed to write physical file to desktop:', fsErr.message);
+      }
 
     } catch (zipErr) {
       console.warn('[PackagerWorker] ZIP generation failed (non-fatal):', zipErr.message);

@@ -215,7 +215,7 @@ lazy_static! {
         map.insert("software".to_string(), InstantResponse {
             intent: "identity".to_string(),
             skill_id: None,
-            response_template: "🤖 **Mickii Engine — Nexious AI**\n\nMain ek deterministic business engine hoon. Main aapke business ke liye:\n• Websites bana sakta hoon\n• Leads manage kar sakta hoon\n• Proposals ready kar sakta hoon\n• Workflows automate kar sakta hoon\n\nSab kuch **100% Offline** aur **Private** hai. Aapka data mere paas hi rehta hai.".to_string(),
+            response_template: "🤖 **Mickii Engine — Mabishion AI**\n\nMain ek deterministic business engine hoon. Main aapke business ke liye:\n• Websites bana sakta hoon\n• Leads manage kar sakta hoon\n• Proposals ready kar sakta hoon\n• Workflows automate kar sakta hoon\n\nSab kuch **100% Offline** aur **Private** hai. Aapka data mere paas hi rehta hai.".to_string(),
             action: "show_help".to_string(),
             confidence: 1.0,
         });
@@ -223,14 +223,14 @@ lazy_static! {
         map.insert("kya_hai".to_string(), InstantResponse {
             intent: "identity".to_string(),
             skill_id: None,
-            response_template: "Main **Mickii** hoon, aapka industrial-grade AI business agent. Main websites, leads, aur production handle karta hoon.\n\nType `help` to see what I can do!".to_string(),
+            response_template: "Main **Mickii** hoon, aapka industrial-grade AI business agent. Main websites, leads, aur production handle karma hoon.\n\nType `help` to see what I can do!".to_string(),
             action: "show_help".to_string(),
             confidence: 0.8,
         });
         map.insert("kaun_ho".to_string(), InstantResponse {
             intent: "identity".to_string(),
             skill_id: None,
-            response_template: "Main **Mickii** hoon! Adii Boss ka personal assistant aur Nexious Factory ka head agent. Aapka business automate karne ke liye ready hoon.".to_string(),
+            response_template: "Main **Mickii** hoon! Adii Boss ka personal assistant aur Mabishion Factory ka head agent. Aapka business automate karne ke liye ready hoon.".to_string(),
             action: "show_dashboard".to_string(),
             confidence: 1.0,
         });
@@ -242,10 +242,10 @@ lazy_static! {
             action: "show_dashboard".to_string(),
             confidence: 1.0,
         });
-        map.insert("nexious".to_string(), InstantResponse {
+        map.insert("mabishion".to_string(), InstantResponse {
             intent: "identity".to_string(),
             skill_id: None,
-            response_template: "🏙️ **Nexious Factory**\n\nNexious ek elite AI ecosystem hai jiska main primary agent hoon. Hum industrial-grade, safe, aur high-speed business automation tools build karte hain.\n\nAap abhi Mickii Engine v1.0.0 (Instant Response) use kar rahe hain.".to_string(),
+            response_template: "🏙️ **Mabishion Factory**\n\nMabishion ek elite AI ecosystem hai jiska main primary agent hoon. Hum industrial-grade, safe, aur high-speed business automation tools build karte hain.\n\nAap abhi Mickii Engine v1.0.0 (Instant Response) use kar rahe hain.".to_string(),
             action: "show_help".to_string(),
             confidence: 1.0,
         });

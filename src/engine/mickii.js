@@ -21,13 +21,13 @@ import { Cortex } from './cortex.js';
 let globalCortex = null;
 
 export async function mickiiThink(prompt, context) {
-  // Cortex handles multi-LLM fallback internally: Gemini → Groq → OpenRouter
+  // Cortex handles multi-LLM fallback internally: Gemini → Groq → NVIDIA NIM
   // No Ollama config needed here — cortex.js manages all provider routing
   if (!globalCortex) {
     globalCortex = new Cortex();
   }
 
-  console.log("[Mickii Engine] Thinking via Cortex (Gemini → Groq → OpenRouter fallback)...");
+  console.log("[Mickii Engine] Thinking via Cortex (Gemini → Groq → NVIDIA NIM fallback)...");
 
   try {
     // 1. CALL THE BRAIN (Autonomous Cortex — multi-LLM)
@@ -66,7 +66,7 @@ async function fillTemplateContext(template) {
     let result = template;
     
     // 1. Lead Data
-    const hotLeads = await db.select("SELECT COUNT(*) as count FROM leads WHERE heat = 'Hot'");
+    const hotLeads = await db.select("SELECT COUNT(*) as count FROM leads WHERE score >= 80");
     const totalLeads = await db.select("SELECT COUNT(*) as count FROM leads");
     result = result.replace(/{hot_leads}/g, hotLeads[0].count || 0);
     result = result.replace(/{total_leads}/g, totalLeads[0].count || 0);
@@ -82,11 +82,11 @@ async function fillTemplateContext(template) {
     
     // 4. Specific Lead/Project Placeholders (Look for the most recent or relevant)
     if (template.includes('{lead_name}')) {
-      const recentLead = await db.select("SELECT name, mood, next_action FROM leads ORDER BY created_at DESC LIMIT 1");
+      const recentLead = await db.select("SELECT name FROM leads ORDER BY created_at DESC LIMIT 1");
       if (recentLead.length > 0) {
         result = result.replace(/{lead_name}/g, recentLead[0].name);
-        result = result.replace(/{lead_mood}/g, recentLead[0].mood);
-        result = result.replace(/{message_draft}/g, `Hi ${recentLead[0].name}, following up on: ${recentLead[0].next_action || 'our last talk'}`);
+        result = result.replace(/{lead_mood}/g, "Interested");
+        result = result.replace(/{message_draft}/g, `Hi ${recentLead[0].name}, following up on our last talk regarding your project requirements.`);
       }
     }
 
@@ -227,7 +227,7 @@ export async function executeWorkflowStep(step) {
 
     // Query local DB
     const projects = await db.select('SELECT name, stage, health FROM projects LIMIT 5');
-    const leads = await db.select('SELECT name, heat, stage FROM leads LIMIT 5');
+    const leads = await db.select('SELECT name, status, score FROM leads LIMIT 5');
     return { 
       ...step, 
       status: 'done', 

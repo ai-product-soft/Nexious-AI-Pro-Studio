@@ -16,7 +16,7 @@ export class LlmManagerWorker extends BaseWorker {
       { id: 'gemini',     name: 'Google Gemini 2.5 Flash', dailyLimit: 1500,  key_setting: 'gemini_api_key'     },
       { id: 'groq',       name: 'Groq Llama 3.3 70B',      dailyLimit: 1000,  key_setting: 'groq_api_key'       },
       { id: 'cerebras',   name: 'Cerebras Llama 3.3 70B',  dailyLimit: 1700,  key_setting: 'cerebras_api_key'   },
-      { id: 'openrouter', name: 'OpenRouter (Free)',        dailyLimit: 500,   key_setting: 'openrouter_api_key' },
+      { id: 'nvidia_nim', name: 'NVIDIA NIM (Mistral)',     dailyLimit: 1000,  key_setting: 'nvidia_nim_api_key' },
       { id: 'ollama',     name: 'Ollama Gemma 3 4B',        dailyLimit: 99999, key_setting: null                 }
     ];
   }

@@ -18,8 +18,8 @@ import { BuildProvider } from './context/BuildContext';
 export default function App() {
   const navigate = useNavigate();
 
-  const handleNavigate = (id) => {
-    navigate(`/${id}`);
+  const handleNavigate = (id, state) => {
+    navigate(`/${id}`, { state });
   };
 
   return (

@@ -1,5 +1,5 @@
 // Mabishion AI — All mock data constants
-// Auto-generated from NexiousApp_Fixed.jsx
+// Auto-generated from MabishionApp_Fixed.jsx
 
 export const DASHBOARD_PROJECTS = [
   { name: "AI Website Builder", type: "Internal Product", phase: "Design", progress: 72, health: "Stable", tone: "gold", approvals: 1, last: "12 min ago" },

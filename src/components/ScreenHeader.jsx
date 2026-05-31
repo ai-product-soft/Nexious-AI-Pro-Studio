@@ -7,6 +7,7 @@ import Button from './Button';
 import Icon from './Icon';
 import { getWorkerLogs } from '../data/db.js';
 import { formatLocalTime } from '../utils/dateFormatter.js';
+import { listen } from '@tauri-apps/api/event';
 
 export default function ScreenHeader({ title, pageTitle, subtitle, index, badgeLabel, primaryAction, primaryIcon, secondaryAction, secondaryIcon, extraBadges, onPrimaryClick, onSecondaryClick }) {
   const navigate = useNavigate();
@@ -17,6 +18,8 @@ export default function ScreenHeader({ title, pageTitle, subtitle, index, badgeL
 
   useEffect(() => {
     let active = true;
+    let unlistenLogs = null;
+
     const fetchLogs = async () => {
       try {
         const data = await getWorkerLogs();
@@ -35,11 +38,22 @@ export default function ScreenHeader({ title, pageTitle, subtitle, index, badgeL
         console.warn("[ScreenHeader] Worker logs fetch error:", err);
       }
     };
+
     fetchLogs();
+
+    // Listen to worker log updates in real-time
+    listen('worker_log_updated', () => {
+      fetchLogs();
+    }).then((unsub) => {
+      unlistenLogs = unsub;
+      if (!active) unsub();
+    });
+
     const interval = setInterval(fetchLogs, 5000);
     return () => {
       active = false;
       clearInterval(interval);
+      if (unlistenLogs) unlistenLogs();
     };
   }, []);
 
@@ -193,7 +207,9 @@ export default function ScreenHeader({ title, pageTitle, subtitle, index, badgeL
       <section className="mb-5 flex min-w-0 items-start justify-between gap-5">
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2">
-            <Badge tone="gold">{index === '01' ? 'Home Screen' : `${index} Main Screen`}</Badge>
+            <span className="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider bg-white/10 backdrop-blur-sm text-white border border-white/10">
+              {index === '01' ? 'Home Screen' : `${index} Main Screen`}
+            </span>
             {badgeLabel && <Badge tone="muted">{badgeLabel}</Badge>}
           </div>
           <h1 className="text-4xl font-black tracking-tight" style={{ color: C.text }}>{pageTitle || title}</h1>

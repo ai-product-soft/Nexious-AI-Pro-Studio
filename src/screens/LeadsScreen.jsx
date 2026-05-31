@@ -80,9 +80,9 @@ export default function LeadsScreen({ onNavigate }) {
         <ScreenHeader 
           title="Lead CRM Console" 
           subtitle="Mabishion AI Studio Private Client Intake Scorer & Pipeline"
-          actionLabel={showAddForm ? "Close Form" : "Add New Lead"}
-          actionIcon={showAddForm ? "close" : "person_add"}
-          onActionClick={() => setShowAddForm(!showAddForm)}
+          primaryAction={showAddForm ? "Close Form" : "Add New Lead"}
+          primaryIcon={showAddForm ? "close" : "person_add"}
+          onPrimaryClick={() => setShowAddForm(!showAddForm)}
         />
 
         {/* Lead Capture Form Section */}

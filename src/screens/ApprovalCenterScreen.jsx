@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Button from '../components/Button';
@@ -19,6 +20,7 @@ import CriticalApprovalModal from '../components/approvals/CriticalApprovalModal
 import AppShell from '../components/AppShell';
 
 export default function ApprovalCenterScreen({ onNavigate }) {
+  const location = useLocation();
   const [approvals, setApprovals] = useState([]);
   const [whatsAppLogs, setWhatsAppLogs] = useState([]);
   const [waStatus, setWaStatus] = useState('disconnected');
@@ -76,7 +78,20 @@ export default function ApprovalCenterScreen({ onNavigate }) {
   useEffect(() => {
     // Initialize engine & listeners
     ApprovalEngine.initialize();
-    loadData();
+    
+    const initLoad = async () => {
+      await loadData();
+      // Check location state ONLY ONCE on mount
+      if (location.state && location.state.selectedId) {
+        const data = await getApprovals();
+        const matchingApp = data.find(a => a.id === location.state.selectedId);
+        if (matchingApp) {
+          setSelectedApproval(matchingApp);
+        }
+      }
+    };
+    
+    initLoad();
 
     // Auto-refresh interval every 5 seconds to capture background auto-approves or worker triggers
     const interval = setInterval(() => {
@@ -194,7 +209,7 @@ export default function ApprovalCenterScreen({ onNavigate }) {
 
   return (
     <AppShell activeNavId="approvals" onNavigate={onNavigate}>
-      <div className="space-y-8 max-w-7xl mx-auto p-4 select-none pb-20">
+      <div className="space-y-8 max-w-7xl mx-auto p-4 select-text pb-20">
       
       {/* Visual Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

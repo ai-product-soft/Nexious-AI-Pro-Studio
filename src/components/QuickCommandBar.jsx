@@ -86,7 +86,7 @@ export default function QuickCommandBar({ contextLabel, placeholder }) {
         >
           <Icon name={isListening ? 'stop' : 'mic'} size={17} className={isListening ? 'animate-pulse' : ''} />
         </Button>
-        <Button onClick={handleSend} disabled={isProcessing}><Icon name="send" size={17} /> Send</Button>
+        <Button onClick={handleSend} disabled={isProcessing} className="bg-indigo-600 hover:bg-indigo-500 text-white border-0"><Icon name="send" size={17} /> Send</Button>
       </div>
     </div>
   );

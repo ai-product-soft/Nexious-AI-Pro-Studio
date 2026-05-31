@@ -1,9 +1,10 @@
 import { emit } from '@tauri-apps/api/event';
+import { upgradeDatabase } from './db_schema_upgrade.js';
 
 let dbInstance = null;
 
 // Persistent localStorage database simulation to avoid temporary in-memory fallback outside Tauri shell
-const savedState = localStorage.getItem('mabishion_local_db');
+const savedState = typeof window !== 'undefined' && window.localStorage ? localStorage.getItem('mabishion_local_db') : null;
 const developmentPreviewStore = savedState ? JSON.parse(savedState) : {
   projects: [],
   leads: [],
@@ -15,6 +16,7 @@ const developmentPreviewStore = savedState ? JSON.parse(savedState) : {
   workflow_connections: [],
   knowledge_sources: [],
   analyst_reports: [],
+  client_context: [],
   settings: [], // Saved as serializable list of [key, value]
   whatsapp_logs: [],
   action_ledger: [],
@@ -32,7 +34,9 @@ const settingsMap = new Map(
 
 function saveDevelopmentPreviewDb() {
   developmentPreviewStore.settings = Array.from(settingsMap.entries());
-  localStorage.setItem('mabishion_local_db', JSON.stringify(developmentPreviewStore));
+  if (typeof window !== 'undefined' && window.localStorage) {
+    localStorage.setItem('mabishion_local_db', JSON.stringify(developmentPreviewStore));
+  }
 }
 
 function createDevelopmentPreviewDb() {
@@ -131,7 +135,29 @@ function createDevelopmentPreviewDb() {
 
       // Approvals
       if (normalized.startsWith('insert into approvals')) {
-        const [id, title, type, project_id, worker_name, request_data, status, created_at, expires_at, owner_notified, whatsapp_sent, owner_notes] = params;
+        let id, title, type, project_id, worker_name, request_data, status, created_at, expires_at, owner_notified, whatsapp_sent, owner_notes;
+        
+        if (params.length === 8) {
+          [id, title, type, project_id, worker_name, request_data, status, expires_at] = params;
+          created_at = new Date().toISOString();
+          owner_notified = 0;
+          whatsapp_sent = 0;
+          owner_notes = '';
+        } else if (params.length === 11) {
+          [id, title, type, project_id, worker_name, request_data, status, expires_at, owner_notified, whatsapp_sent, owner_notes] = params;
+          created_at = new Date().toISOString();
+        } else if (params.length === 12) {
+          [id, title, type, project_id, worker_name, request_data, status, created_at, expires_at, owner_notified, whatsapp_sent, owner_notes] = params;
+        } else {
+          // Fallback if parameter count is unexpected
+          [id, title, type, project_id, worker_name, request_data, status] = params;
+          created_at = new Date().toISOString();
+          expires_at = params[7] || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+          owner_notified = params[8] || 0;
+          whatsapp_sent = params[9] || 0;
+          owner_notes = params[10] || '';
+        }
+
         developmentPreviewStore.approvals.unshift({ id, title, type, project_id, worker_name, request_data, status, created_at, expires_at, owner_notified, whatsapp_sent, owner_notes });
         saveDevelopmentPreviewDb();
         return { rowsAffected: 1 };
@@ -163,11 +189,18 @@ function createDevelopmentPreviewDb() {
 
       // Worker Logs
       if (normalized.startsWith('insert into worker_logs')) {
-        const [id, worker_name, status, input_data] = params;
+        const [id, worker_name, status, input_data, provider_used] = params;
         if (!developmentPreviewStore.worker_logs) {
           developmentPreviewStore.worker_logs = [];
         }
-        developmentPreviewStore.worker_logs.unshift({ id, worker_name, status, input_data, timestamp: new Date().toISOString() });
+        developmentPreviewStore.worker_logs.unshift({ 
+          id, 
+          worker_name, 
+          status, 
+          input_data, 
+          provider_used: provider_used || 'Gemini', 
+          timestamp: new Date().toISOString() 
+        });
         saveDevelopmentPreviewDb();
         return { rowsAffected: 1 };
       }
@@ -251,6 +284,34 @@ function createDevelopmentPreviewDb() {
         return { rowsAffected: 1 };
       }
 
+      // Client Context writes and updates
+      if (normalized.startsWith('insert into client_context')) {
+        if (!developmentPreviewStore.client_context) developmentPreviewStore.client_context = [];
+        const [id, project_id, client_name, business_profile, constraints, custom_preferences] = params;
+        developmentPreviewStore.client_context.push({
+          id, project_id, client_name, business_profile, constraints, custom_preferences,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+        saveDevelopmentPreviewDb();
+        return { rowsAffected: 1 };
+      }
+
+      if (normalized.startsWith('update client_context')) {
+        if (!developmentPreviewStore.client_context) developmentPreviewStore.client_context = [];
+        const [client_name, business_profile, constraints, custom_preferences, project_id] = params;
+        const ctx = developmentPreviewStore.client_context.find(c => c.project_id === project_id);
+        if (ctx) {
+          ctx.client_name = client_name;
+          ctx.business_profile = business_profile;
+          ctx.constraints = constraints;
+          ctx.custom_preferences = custom_preferences;
+          ctx.updated_at = new Date().toISOString();
+        }
+        saveDevelopmentPreviewDb();
+        return { rowsAffected: 1 };
+      }
+
       // Deletes
       if (normalized.startsWith('delete from leads')) {
         const [id] = params;
@@ -285,6 +346,12 @@ function createDevelopmentPreviewDb() {
         return developmentPreviewStore.workflow_connections.filter((row) => row.workflow_id === params[0]);
       }
       if (normalized.startsWith('select * from knowledge_sources')) return [...developmentPreviewStore.knowledge_sources];
+      if (normalized.startsWith('select * from client_context') || normalized.startsWith('select id from client_context')) {
+        if (!developmentPreviewStore.client_context) developmentPreviewStore.client_context = [];
+        const projectId = params[0];
+        const match = developmentPreviewStore.client_context.find(c => c.project_id === projectId);
+        return match ? [match] : [];
+      }
       if (normalized.startsWith('select * from analyst_reports')) return [...developmentPreviewStore.analyst_reports];
       if (normalized.startsWith('select * from approvals')) return [...developmentPreviewStore.approvals];
       if (normalized.startsWith('select * from llm_usage')) return [...developmentPreviewStore.llm_usage].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
@@ -328,6 +395,14 @@ export async function getDb() {
 export async function initDb() {
   const db = await getDb();
   
+  // Safe migration/upgrade of schema using db_schema_upgrade.js
+  try {
+    const upgradeResult = await upgradeDatabase(db);
+    console.log("[Mickii DB] Upgrade result:", upgradeResult);
+  } catch (err) {
+    console.error("[Mickii DB] Safe schema upgrade failed:", err);
+  }
+  
   // 1. Projects Table
   await db.execute(`
     CREATE TABLE IF NOT EXISTS projects (
@@ -343,6 +418,33 @@ export async function initDb() {
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  // 1.5. Blueprints Table with version and changes support
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS blueprints (
+      id TEXT PRIMARY KEY,
+      project_id TEXT,
+      prd_text TEXT,
+      trd_text TEXT,
+      architecture_diagram TEXT,
+      tech_stack_json TEXT,
+      database_schema TEXT,
+      api_endpoints_json TEXT,
+      security_checklist TEXT,
+      deployment_steps TEXT,
+      version REAL DEFAULT 1.0,
+      changes TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+  `).catch(() => {});
+
+  // Safe migration checks for version and changes columns in case blueprints table existed
+  try {
+    await db.execute(`ALTER TABLE blueprints ADD COLUMN changes TEXT;`).catch(() => {});
+    await db.execute(`ALTER TABLE blueprints ADD COLUMN version REAL DEFAULT 1.0;`).catch(() => {});
+  } catch (err) {
+    console.warn("[Mickii DB] Blueprints table schema migration handled:", err);
+  }
 
   // 2. Leads Table
   await db.execute(`
@@ -508,7 +610,7 @@ export async function initDb() {
   `);
 
   // Seed API Keys (Placeholders ONLY)
-  await db.execute('INSERT OR IGNORE INTO settings (key, value) VALUES ($1, $2)', ['openrouter_api_key', 'PASTE_YOUR_OPENROUTER_KEY_HERE']);
+  await db.execute('INSERT OR IGNORE INTO settings (key, value) VALUES ($1, $2)', ['nvidia_nim_api_key', 'PASTE_YOUR_NVIDIA_NIM_KEY_HERE']);
   await db.execute('INSERT OR IGNORE INTO settings (key, value) VALUES ($1, $2)', ['serper_api_key', 'PASTE_YOUR_SERPER_KEY_HERE']);
   await db.execute('INSERT OR IGNORE INTO settings (key, value) VALUES ($1, $2)', ['exa_api_key', 'PASTE_YOUR_EXA_KEY_HERE']);
   await db.execute('INSERT OR IGNORE INTO settings (key, value) VALUES ($1, $2)', ['groq_api_key', 'PASTE_YOUR_GROQ_KEY_HERE']);
@@ -702,6 +804,20 @@ export async function initDb() {
     );
   }
 
+  // 14. Client Context Table (Context Memory)
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS client_context (
+      id TEXT PRIMARY KEY,
+      project_id TEXT,
+      client_name TEXT,
+      business_profile TEXT,
+      constraints TEXT,
+      custom_preferences TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+  `).catch(err => console.error('[Mickii DB] Client context table creation failed:', err));
+
   console.log("Database initialized successfully!");
 }
 
@@ -786,6 +902,18 @@ export async function approveAction(id) {
       'INSERT INTO action_ledger (id, action_type, decision, risk_level) VALUES ($1, $2, $3, $4)',
       [crypto.randomUUID(), rows[0].title || rows[0].worker_name, 'YES', rows[0].type === 'critical' ? 'High' : 'Standard']
     );
+    
+    // Auto-trigger proposal maker when blueprint maker is approved
+    if (rows[0].worker_name === 'Blueprint Maker' && rows[0].project_id) {
+      console.log(`[Mickii DB Auto-Trigger] Blueprint approved for project ${rows[0].project_id}. Launching Proposal Maker...`);
+      import('../engine/workers/index.js')
+        .then(({ runWorker }) => {
+          runWorker('proposal_maker', rows[0].project_id, {})
+            .then(res => console.log('[Mickii DB Auto-Trigger] Proposal Maker completed successfully:', res))
+            .catch(err => console.error('[Mickii DB Auto-Trigger] Proposal Maker failed:', err));
+        })
+        .catch(err => console.error('[Mickii DB Auto-Trigger] Failed to import runWorker:', err));
+    }
   }
   await emit('approval_granted', { approvalId: id, decision: 'Approved' });
 }
@@ -833,6 +961,18 @@ export async function updateApprovalStatus(id, status, notes = '') {
         'INSERT INTO action_ledger (id, action_type, decision, risk_level) VALUES ($1, $2, $3, $4)',
         [crypto.randomUUID(), rows[0].title || rows[0].worker_name, (status.toLowerCase() === 'approved') ? 'YES' : 'NO', rows[0].type === 'critical' ? 'High' : 'Standard']
       );
+      
+      // Auto-trigger proposal maker when blueprint maker is approved
+      if (status.toLowerCase() === 'approved' && rows[0].worker_name === 'Blueprint Maker' && rows[0].project_id) {
+        console.log(`[Mickii DB Auto-Trigger] Blueprint approved for project ${rows[0].project_id}. Launching Proposal Maker...`);
+        import('../engine/workers/index.js')
+          .then(({ runWorker }) => {
+            runWorker('proposal_maker', rows[0].project_id, {})
+              .then(res => console.log('[Mickii DB Auto-Trigger] Proposal Maker completed successfully:', res))
+              .catch(err => console.error('[Mickii DB Auto-Trigger] Proposal Maker failed:', err));
+          })
+          .catch(err => console.error('[Mickii DB Auto-Trigger] Failed to import runWorker:', err));
+      }
     }
     await emit('approval_granted', { approvalId: id, decision: status });
   }
@@ -1147,5 +1287,164 @@ export async function getCronLogs() {
 
 export async function getWorkerLogs() {
   const db = await getDb();
-  return await db.select('SELECT * FROM worker_logs ORDER BY timestamp DESC');
+  const rows = await db.select('SELECT * FROM worker_logs ORDER BY timestamp DESC');
+  return (rows || []).map(row => {
+    let msg = '';
+    const status = (row.status || '').toLowerCase();
+    const worker = row.worker_name || 'System Worker';
+    
+    if (status === 'running') {
+      msg = `${worker} is actively processing business logic in background...`;
+    } else if (status === 'waiting_approval') {
+      msg = `${worker} execution paused. Waiting for owner approval in safety gate.`;
+    } else if (status === 'completed') {
+      let details = '';
+      try {
+        const parsedOut = JSON.parse(row.output_data || '{}');
+        details = parsedOut.summary || parsedOut.message || '';
+      } catch {}
+      msg = details ? details : `${worker} worker completed its production task successfully.`;
+    } else if (status === 'failed') {
+      msg = row.error_message ? `Error: ${row.error_message}` : `${worker} worker execution failed.`;
+    } else {
+      msg = `${worker} log registered.`;
+    }
+    
+    return {
+      ...row,
+      message: msg
+    };
+  });
 }
+
+// ── VERSION HISTORY CONTROL FUNCTIONS (PROBLEM 2) ────────────────────────────
+export async function createBlueprintVersion(projectId, type, content, changes = '') {
+  const db = await getDb();
+  const last = await db.select('SELECT version FROM blueprints WHERE project_id = ? ORDER BY version DESC LIMIT 1', [projectId]);
+  const version = last.length > 0 ? parseFloat(last[0].version) + 0.1 : 1.0;
+  
+  let prd = '';
+  let trd = '';
+  let arch = '';
+  let stack = '{}';
+  let schema = '';
+  let apis = '[]';
+  let security = '[]';
+  let deploy = '[]';
+  
+  if (typeof content === 'string') {
+    try {
+      const parsed = JSON.parse(content);
+      prd = parsed.prd_text || parsed.prdText || '';
+      trd = parsed.trd_text || parsed.trdMarkdown || '';
+      arch = parsed.architecture_diagram || parsed.architectureDiagram || '';
+      stack = JSON.stringify(parsed.tech_stack_json || parsed.techStack || {});
+      schema = parsed.database_schema || parsed.databaseSchema || '';
+      apis = JSON.stringify(parsed.api_endpoints_json || parsed.apiEndpoints || []);
+      security = JSON.stringify(parsed.security_checklist || parsed.securityChecklist || []);
+      deploy = JSON.stringify(parsed.deployment_steps || parsed.deploymentSteps || []);
+    } catch {
+      prd = content;
+    }
+  } else if (content && typeof content === 'object') {
+    prd = content.prd_text || content.prdText || '';
+    trd = content.trd_text || content.trdMarkdown || '';
+    arch = content.architecture_diagram || content.architectureDiagram || '';
+    stack = JSON.stringify(content.tech_stack_json || content.techStack || {});
+    schema = content.database_schema || content.databaseSchema || '';
+    apis = JSON.stringify(content.api_endpoints_json || content.apiEndpoints || []);
+    security = JSON.stringify(content.security_checklist || content.securityChecklist || []);
+    deploy = JSON.stringify(content.deployment_steps || content.deploymentSteps || []);
+  }
+
+  const id = crypto.randomUUID();
+  await db.execute(`
+    INSERT INTO blueprints (id, project_id, prd_text, trd_text, architecture_diagram, tech_stack_json, database_schema, api_endpoints_json, security_checklist, deployment_steps, version, changes, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+  `, [
+    id,
+    projectId,
+    prd,
+    trd,
+    arch,
+    stack,
+    schema,
+    apis,
+    security,
+    deploy,
+    version.toFixed(1),
+    changes
+  ]);
+  
+  return { id, version: version.toFixed(1) };
+}
+
+export async function getBlueprintVersions(projectId) {
+  const db = await getDb();
+  if (!window.__TAURI_INTERNALS__) {
+    return [
+      { version: '1.1', changes: '+3 features, +2 days', created_at: new Date().toISOString(), content_size: 4500 },
+      { version: '1.0', changes: 'Initial technical blueprint', created_at: new Date(Date.now() - 3600000).toISOString(), content_size: 4200 }
+    ];
+  }
+  return await db.select(`
+    SELECT version, changes, created_at, 
+           (LENGTH(prd_text) + LENGTH(trd_text)) as content_size
+    FROM blueprints 
+    WHERE project_id = ? 
+    ORDER BY version DESC
+  `, [projectId]);
+}
+
+export async function getBlueprintDiff(projectId, v1, v2) {
+  const db = await getDb();
+  if (!window.__TAURI_INTERNALS__) {
+    return {
+      old: { version: v1, prd_text: 'Old requirements context' },
+      new: { version: v2, prd_text: 'New requirements context with added stories' },
+      diff_summary: 'v1.2 vs v1.1: +3 features, +2 days, +₹5000 hosting cost',
+      added: ['Feature: Interactive Dashboard widgets', 'Milestone: Secure Stripe reminders'],
+      removed: ['Feature: Legacy web FTP deploy']
+    };
+  }
+  const plans = await db.select(`
+    SELECT version, prd_text, trd_text, changes FROM blueprints 
+    WHERE project_id = ? AND version IN (?, ?)
+    ORDER BY version ASC
+  `, [projectId, v1, v2]);
+  
+  if (plans.length < 2) {
+    return { old: plans[0] || null, new: plans[0] || null, diff_summary: 'Not enough versions to compare', added: [], removed: [] };
+  }
+  
+  const oldText = plans[0].prd_text || '';
+  const newText = plans[1].prd_text || '';
+  
+  const oldLines = oldText.split('\n').map(l => l.trim());
+  const newLines = newText.split('\n').map(l => l.trim());
+  
+  const added = newLines.filter(l => l && !oldLines.includes(l));
+  const removed = oldLines.filter(l => l && !newLines.includes(l));
+  
+  const oldWords = oldText.split(/\s+/).length;
+  const newWords = newText.split(/\s+/).length;
+  const wordDiff = newWords - oldWords;
+  
+  let diffSummary = `v${plans[1].version} vs v${plans[0].version}: `;
+  if (wordDiff > 0) {
+    diffSummary += `+${wordDiff} words added. `;
+  } else if (wordDiff < 0) {
+    diffSummary += `${wordDiff} words removed. `;
+  } else {
+    diffSummary += `No text changes. `;
+  }
+  
+  if (plans[1].changes) {
+    diffSummary += `Changes: ${plans[1].changes}`;
+  }
+
+  return { old: plans[0], new: plans[1], added, removed, diff_summary: diffSummary };
+}
+
+// Client Context Re-exports
+export { getClientProfile, saveClientProfile } from '../utils/clientContext.js';

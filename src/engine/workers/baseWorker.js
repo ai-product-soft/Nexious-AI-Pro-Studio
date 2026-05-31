@@ -1,5 +1,6 @@
 import { getDb } from '../../data/db.js';
 import { logWorkerStart, logWorkerEnd, logWorkerFail, logApprovalWait } from '../utils/runtimeHealth.js';
+import { emit } from '@tauri-apps/api/event';
 
 // Safe SQLite string value sanitization helper
 export const sanitizeSqlValue = (val) => {
@@ -69,6 +70,10 @@ export class BaseWorker {
     ).catch(err => console.error('[BaseWorker Log Insert Err]', err));
 
     try {
+      emit('worker_log_updated', { worker_name: this.name, status: 'running' }).catch(() => {});
+    } catch {}
+
+    try {
       // If worker requires approval, transition status state to waiting_approval before triggering execution
       if (this.requiresApproval) {
         this.status = 'waiting_approval';
@@ -77,9 +82,23 @@ export class BaseWorker {
           `UPDATE worker_logs SET status = $1 WHERE id = $2`,
           ['waiting_approval', logId]
         ).catch(e => console.warn('[BaseWorker waiting_approval state transition ignored]', e));
+        
+        try {
+          emit('worker_log_updated', { worker_name: this.name, status: 'waiting_approval' }).catch(() => {});
+        } catch {}
       }
 
-      // Run subclass execution method
+      // Run subclass execution method, injecting any dynamic rules (Self-Evolution Feature)
+      let dynamicRules = '';
+      try {
+        const rulesDb = await db.select('SELECT prompt_rules FROM dynamic_worker_prompts WHERE worker_name = $1 LIMIT 1', [this.name]);
+        if (rulesDb && rulesDb.length > 0) {
+          dynamicRules = rulesDb[0].prompt_rules;
+          cleanParams.dynamic_rules = dynamicRules;
+          console.log(`[BaseWorker] Self-Evolution rules injected for ${this.name}`);
+        }
+      } catch (e) { /* table might not exist yet */ }
+
       const result = await this.execute(cleanTargetId, cleanParams);
 
       const durationMs = Date.now() - startTime;
@@ -95,6 +114,10 @@ export class BaseWorker {
          WHERE id = $4`,
         ['completed', JSON.stringify(result), durationMs, logId]
       ).catch(err => console.error('[BaseWorker Log Success Err]', err));
+
+      try {
+        emit('worker_log_updated', { worker_name: this.name, status: 'completed' }).catch(() => {});
+      } catch {}
 
       return {
         success: true,
@@ -120,6 +143,10 @@ export class BaseWorker {
          WHERE id = $4`,
         ['failed', error.message || String(error), durationMs, logId]
       ).catch(err => console.error('[BaseWorker Log Error Err]', err));
+
+      try {
+        emit('worker_log_updated', { worker_name: this.name, status: 'failed' }).catch(() => {});
+      } catch {}
 
       return {
         success: false,

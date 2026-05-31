@@ -10,7 +10,7 @@ const SettingsScreen = ({ onNavigate }) => {
   const [activeTab, setActiveTab] = useState('credentials'); // 'credentials' or 'mcp'
   
   // API credentials keys
-  const [openrouterKey, setOpenrouterKey] = useState('');
+  const [nvidiaNimKey, setNvidiaNimKey] = useState('');
   const [geminiKey, setGeminiKey] = useState('');
   const [groqKey, setGroqKey] = useState('');
   const [cerebrasKey, setCerebrasKey] = useState('');
@@ -35,7 +35,7 @@ const SettingsScreen = ({ onNavigate }) => {
     gemini: null,
     groq: null,
     cerebras: null,
-    openrouter: null,
+    nvidia_nim: null,
   });
 
   // MCP connection statuses
@@ -52,7 +52,7 @@ const SettingsScreen = ({ onNavigate }) => {
   useEffect(() => {
     const loadSettings = async () => {
       await initDb();
-      const orKey = await getSetting('openrouter_api_key');
+      const nimKey = await getSetting('nvidia_nim_api_key');
       const gemKey = await getSetting('gemini_api_key');
       const gqKey = await getSetting('groq_api_key');
       const cerKey = await getSetting('cerebras_api_key');
@@ -71,7 +71,7 @@ const SettingsScreen = ({ onNavigate }) => {
       const waBiz = await getSetting('wa_business_token');
       const waPers = await getSetting('wa_personal_number');
 
-      if (orKey) setOpenrouterKey(orKey);
+      if (nimKey) setNvidiaNimKey(nimKey);
       if (gemKey) setGeminiKey(gemKey);
       if (gqKey) setGroqKey(gqKey);
       if (cerKey) setCerebrasKey(cerKey);
@@ -93,7 +93,7 @@ const SettingsScreen = ({ onNavigate }) => {
   }, []);
 
   const handleSave = async () => {
-    await setSetting('openrouter_api_key', openrouterKey.trim());
+    await setSetting('nvidia_nim_api_key', nvidiaNimKey.trim());
     await setSetting('gemini_api_key', geminiKey.trim());
     await setSetting('groq_api_key', groqKey.trim());
     await setSetting('cerebras_api_key', cerebrasKey.trim());
@@ -140,12 +140,6 @@ const SettingsScreen = ({ onNavigate }) => {
           headers: {
             Authorization: `Bearer ${key}`,
             'Content-Type': 'application/json',
-            ...(provider === 'openrouter'
-              ? {
-                  'HTTP-Referer': 'http://localhost',
-                  'X-Title': 'Mabishion-Mickii',
-                }
-              : {}),
           },
           body: JSON.stringify({
             model: model,
@@ -268,7 +262,7 @@ const SettingsScreen = ({ onNavigate }) => {
                           handleTestConnection(
                             'gemini',
                             geminiKey,
-                            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+                            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
                             null
                           )
                         }
@@ -318,33 +312,41 @@ const SettingsScreen = ({ onNavigate }) => {
                     />
                     {testStatuses.groq === 'testing' && <p className="text-blue-400 text-xs mt-1">Connecting...</p>}
                     {testStatuses.groq === 'success' && <p className="text-green-400 text-xs mt-1">✅ Functional!</p>}
+                    {testStatuses.groq && testStatuses.groq.startsWith('error') && (
+                      <p className="text-red-400 text-xs mt-1">❌ {testStatuses.groq}</p>
+                    )}
                   </div>
 
-                  {/* OpenRouter */}
+                  {/* NVIDIA NIM */}
                   <div>
                     <div className="flex justify-between items-center mb-1">
-                      <label className="text-xs text-gray-400 font-bold">OpenRouter API Key (Backup)</label>
+                      <label className="text-xs text-gray-400 font-bold">NVIDIA NIM API Key (Mistral Nemo)</label>
                       <button
                         onClick={() =>
                           handleTestConnection(
-                            'openrouter',
-                            openrouterKey,
-                            'https://openrouter.ai/api/v1/chat/completions',
-                            'openrouter/free'
+                            'nvidia_nim',
+                            nvidiaNimKey,
+                            'https://integrate.api.nvidia.com/v1/chat/completions',
+                            'mistralai/mistral-nemo'
                           )
                         }
                         className="text-xs text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1"
                       >
-                        Test OpenRouter
+                        Test NVIDIA NIM
                       </button>
                     </div>
                     <input
                       type="password"
-                      value={openrouterKey}
-                      onChange={(e) => setOpenrouterKey(e.target.value)}
+                      value={nvidiaNimKey}
+                      onChange={(e) => setNvidiaNimKey(e.target.value)}
                       className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-indigo-500 outline-none transition-all font-mono text-sm"
-                      placeholder="sk-or-v1-..."
+                      placeholder="nvapi-..."
                     />
+                    {testStatuses.nvidia_nim === 'testing' && <p className="text-blue-400 text-xs mt-1">Connecting...</p>}
+                    {testStatuses.nvidia_nim === 'success' && <p className="text-green-400 text-xs mt-1">✅ Functional!</p>}
+                    {testStatuses.nvidia_nim && testStatuses.nvidia_nim.startsWith('error') && (
+                      <p className="text-red-400 text-xs mt-1">❌ {testStatuses.nvidia_nim}</p>
+                    )}
                   </div>
                 </div>
               </div>
